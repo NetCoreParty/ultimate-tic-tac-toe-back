@@ -1,0 +1,6 @@
+@UltimateTicTacToe_API_HostAddress = https://localhost:7197
+
+GET {{UltimateTicTacToe_API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
