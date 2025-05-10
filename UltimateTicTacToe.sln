@@ -16,6 +16,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimateTicTacToe.Storage", "src\UltimateTicTacToe.Storage\UltimateTicTacToe.Storage.csproj", "{3041F075-8301-40CA-BA6D-8ACAD0824D4A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{C649850E-BC57-403D-8EEB-9DAFCB6BDD7A}"
+	ProjectSection(SolutionItems) = preProject
+		deploy\docker-compose.yaml = deploy\docker-compose.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
