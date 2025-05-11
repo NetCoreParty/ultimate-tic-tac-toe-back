@@ -24,6 +24,8 @@ namespace WebApplication1
             builder.Services.AddControllers();
             builder.Services.AddSignalR();
 
+            #region CORS
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowLocalhost8080_Only",
@@ -33,6 +35,8 @@ namespace WebApplication1
                         .AllowAnyMethod()
                         .AllowCredentials());
             });
+
+            #endregion
 
             var app = builder.Build();
 
@@ -45,12 +49,14 @@ namespace WebApplication1
             
             app.UseRouting();
 
-            app.UseCors("AllowLocalhost8080_Only");
+            //app.UseCors("AllowLocalhost8080_Only");
 
             app.UseAuthorization();
             app.UseHttpsRedirection();
 
-            app.MapHub<GameHub>("game-hub").RequireCors("AllowLocalhost8080_Only");
+            app.MapHub<GameHub>("game-hub");
+                //.RequireCors("AllowLocalhost8080_Only");
+
             app.MapControllers();
 
             app.Run();

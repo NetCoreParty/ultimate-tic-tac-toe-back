@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using UltimateTicTacToe.API.DTOs;
 
 namespace UltimateTicTacToe.API.Hubs
 {
     public class GameHub : Hub
     {
-        public async Task MakeMove(string gameId, MoveCoordinate boardCoordinate, MoveCoordinate cellCoordinate, string currentPlayer)
+        public async Task MakeMove(string gameId, string boardCoordinate, string cellCoordinate, string currentPlayer)
         {
             // Make move logic
             Console.WriteLine($"Move has been made by {currentPlayer} in game {gameId}");
-            Console.WriteLine($"BoardCoordinate: {boardCoordinate.X}:{boardCoordinate.Y} || CellCoordinate: {cellCoordinate.X}:{cellCoordinate.Y}");
+            Console.WriteLine($"BoardCoordinate: {boardCoordinate}:{boardCoordinate} || CellCoordinate: {cellCoordinate}:{cellCoordinate}");
             Console.WriteLine();
 
             // Validate and process the move here
