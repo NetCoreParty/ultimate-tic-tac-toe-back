@@ -1,4 +1,7 @@
 using UltimateTicTacToe.API.Hubs;
+using UltimateTicTacToe.Core.Configuration;
+using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Storage.Services;
 
 namespace WebApplication1
 {
@@ -7,6 +10,13 @@ namespace WebApplication1
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            #region Event Store
+            
+            builder.Services.Configure<EventStoreSettings>(builder.Configuration.GetSection("EventStoreSettings"));
+            builder.Services.AddSingleton<IEventStore, MongoEventStore>();
+
+            #endregion
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

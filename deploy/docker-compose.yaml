@@ -1,8 +1,12 @@
 services:
-  mongo:
-    image: mongo
-    container_name: mongo
+  mongo-event-store:
+    image: mongo:latest
+    container_name: mongo-event-store-local
+    hostname: mongo-local.com
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: local
+      MONGO_INITDB_ROOT_PASSWORD: local
     ports:
-      - "27017:27017"
+      - "32768:27017"
     volumes:
       - ./mongo-data:/data/db
