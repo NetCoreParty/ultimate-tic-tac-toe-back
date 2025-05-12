@@ -4,18 +4,17 @@ namespace UltimateTicTacToe.Core.Features.Game.Domain.Events;
 
 public interface IDomainEvent
 {
-    DateTime OccurredOn { get; }
+    int Version { get; set; }
+    DateTime OccurredOn { get; set; }
 }
 public abstract record DomainEventBase : IDomainEvent
 {
-    public Guid EventId { get; }
     public virtual string EventName => GetType().Name;
-    public int Version { get; protected set; } = 1;
-    public DateTime OccurredOn { get; }
+    public DateTime OccurredOn { get; set; }
+    public int Version { get; set; }
 
     protected DomainEventBase()
     {
-        EventId = Guid.NewGuid();
         OccurredOn = DateTime.UtcNow;
     }
 }

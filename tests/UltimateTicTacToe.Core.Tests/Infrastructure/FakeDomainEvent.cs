@@ -8,6 +8,8 @@ public class FakeDomainEvent : IDomainEvent
 
     public DateTime OccurredOn { get; init; }
 
+    public int Version { get; set; }
+
     public FakeDomainEvent(string name, DateTime occurredOn)
     {
         Name = name;

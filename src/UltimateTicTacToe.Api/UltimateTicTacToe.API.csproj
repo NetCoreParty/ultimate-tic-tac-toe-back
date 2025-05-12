@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\UltimateTicTacToe.Core\UltimateTicTacToe.Core.csproj" />
     <ProjectReference Include="..\UltimateTicTacToe.Storage\UltimateTicTacToe.Storage.csproj" />
   </ItemGroup>

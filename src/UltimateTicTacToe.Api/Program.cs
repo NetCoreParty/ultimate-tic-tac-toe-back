@@ -1,7 +1,14 @@
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson;
 using UltimateTicTacToe.API.Hubs;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Storage.Services;
+using MongoDB.Bson.Serialization;
+using UltimateTicTacToe.Core.Features.Game.Domain.Events;
+using MongoDB.Bson.Serialization.Serializers;
+using Microsoft.Extensions.Options;
+using UltimateTicTacToe.Storage.HostedServices;
 
 namespace WebApplication1
 {
@@ -13,8 +20,20 @@ namespace WebApplication1
 
             #region Event Store
             
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+            // Register base class and its known types
+            BsonClassMap.RegisterClassMap<DomainEventBase>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIsRootClass(true);
+            });
+
+            BsonClassMap.RegisterClassMap<CellMarkedEvent>(cm => cm.AutoMap());
+
             builder.Services.Configure<EventStoreSettings>(builder.Configuration.GetSection("EventStoreSettings"));
             builder.Services.AddSingleton<IEventStore, MongoEventStore>();
+
+            builder.Services.AddHostedService<EventStoreInitializer>();
 
             #endregion
 

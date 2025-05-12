@@ -46,6 +46,19 @@ public class GameRoot
         return game;
     }
 
+    public static bool ClearUncomittedEvents(GameRoot gameRoot)
+    {
+        if (gameRoot == null)
+            throw new ArgumentNullException(nameof(gameRoot));
+
+        if (gameRoot.UncommittedChanges.Count == 0)
+            return false;
+
+        gameRoot._uncommittedChanges.Clear();
+
+        return true;
+    }
+
     /// <summary>
     /// Play a move in the game. Method is used both in a game and during rehydration (events replay).
     /// </summary>
@@ -126,8 +139,10 @@ public class GameRoot
     private void Apply(IDomainEvent _event)
     {
         When(_event);
-        _uncommittedChanges.Add(_event);
         Version++;
+        _event.Version = Version;
+        
+        _uncommittedChanges.Add(_event);
     }
 
     private void When(IDomainEvent _event, bool isEventReplay = false)

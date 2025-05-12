@@ -26,7 +26,7 @@ public class InMemoryEventStoreTests
 
         // Act
         await _eventStore.AppendEventsAsync(aggregateId, events);
-        var storedEvents = await _eventStore.GetAllEvents(aggregateId);
+        var storedEvents = await _eventStore.GetAllEventsAsync(aggregateId);
 
         // Assert
         Assert.Equal(2, storedEvents.Count);
@@ -41,7 +41,7 @@ public class InMemoryEventStoreTests
         var nonExistentAggregateId = Guid.NewGuid();
 
         // Act
-        var events = await _eventStore.GetAllEvents(nonExistentAggregateId);
+        var events = await _eventStore.GetAllEventsAsync(nonExistentAggregateId);
 
         // Assert
         Assert.NotNull(events);
@@ -63,7 +63,7 @@ public class InMemoryEventStoreTests
         await _eventStore.AppendEventsAsync(aggregateId, events);
 
         // Act
-        var eventsAfterVersion1 = await _eventStore.GetEventsAfterVersion(aggregateId, 1);
+        var eventsAfterVersion1 = await _eventStore.GetEventsAfterVersionAsync(aggregateId, 1);
 
         // Assert
         Assert.Equal(2, eventsAfterVersion1.Count);
@@ -84,7 +84,7 @@ public class InMemoryEventStoreTests
         await _eventStore.AppendEventsAsync(aggregateId, events);
 
         // Act
-        var eventsAfterVersion1 = await _eventStore.GetEventsAfterVersion(aggregateId, 1);
+        var eventsAfterVersion1 = await _eventStore.GetEventsAfterVersionAsync(aggregateId, 1);
 
         // Assert
         Assert.NotNull(eventsAfterVersion1);
@@ -112,7 +112,7 @@ public class InMemoryEventStoreTests
         await _eventStore.AppendEventsAsync(aggregateId, events1);
         await _eventStore.AppendEventsAsync(aggregateId, events2);
 
-        var allEvents = await _eventStore.GetAllEvents(aggregateId);
+        var allEvents = await _eventStore.GetAllEventsAsync(aggregateId);
 
         // Assert
         Assert.Equal(3, allEvents.Count);
@@ -120,7 +120,7 @@ public class InMemoryEventStoreTests
         Assert.Equal("Event2", ((FakeDomainEvent)allEvents[1]).Name);
         Assert.Equal("Event3", ((FakeDomainEvent)allEvents[2]).Name);
 
-        var eventsAfterFirst = await _eventStore.GetEventsAfterVersion(aggregateId, 1);
+        var eventsAfterFirst = await _eventStore.GetEventsAfterVersionAsync(aggregateId, 1);
 
         Assert.Equal(2, eventsAfterFirst.Count); // Only Event2 and Event3
     }

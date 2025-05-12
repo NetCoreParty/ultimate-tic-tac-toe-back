@@ -6,9 +6,11 @@ public interface IEventStore
 {
     Task AppendEventsAsync(Guid gameAggregateId, IEnumerable<IDomainEvent> events);
 
-    Task<List<IDomainEvent>> GetAllEvents(Guid gameAggregateId);
+    Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId);
 
-    Task<List<IDomainEvent>> GetEventsAfterVersion(Guid gameAggregateId, int version);
+    Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid gameAggregateId, int version);
+
+    Task DeleteEventsByAsync(Guid gameAggregateId);
 }
 
 public class InMemoryEventStore : IEventStore
@@ -31,7 +33,7 @@ public class InMemoryEventStore : IEventStore
         return Task.CompletedTask;
     }
 
-    public Task<List<IDomainEvent>> GetAllEvents(Guid aggregateId)
+    public Task<List<IDomainEvent>> GetAllEventsAsync(Guid aggregateId)
     {
         if (_store.TryGetValue(aggregateId, out var events))
             return Task.FromResult(events.Select(e => e.Event).ToList());
@@ -39,7 +41,7 @@ public class InMemoryEventStore : IEventStore
         return Task.FromResult(new List<IDomainEvent>());
     }
 
-    public Task<List<IDomainEvent>> GetEventsAfterVersion(Guid aggregateId, int version)
+    public Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid aggregateId, int version)
     {
         if (!_store.ContainsKey(aggregateId))
             return Task.FromResult(new List<IDomainEvent>());
@@ -50,5 +52,13 @@ public class InMemoryEventStore : IEventStore
                 .Select(e => e.Event)
                 .ToList()
         );
+    }
+
+    public Task DeleteEventsByAsync(Guid aggregateId)
+    {
+        if (_store.ContainsKey(aggregateId))
+            _store.Remove(aggregateId);
+
+        return Task.CompletedTask;
     }
 }

@@ -76,14 +76,14 @@ public class StateSnapshotStore : IStateSnapshotStore
         if (_inMemorySnapshots.TryGetValue(gameId, out var snapshot))
         {
             var snapshotProjection = JsonSerializer.Deserialize<GameRootSnapshotProjection>(snapshot.StateJson)!;
-            var remainingEvents = await eventStore.GetEventsAfterVersion(gameId, snapshot.Version);
+            var remainingEvents = await eventStore.GetEventsAfterVersionAsync(gameId, snapshot.Version);
             var gameRoot = snapshotProjection.ToGameRoot_DoesntWorkForNow(remainingEvents);
 
             return gameRoot;
         }
 
         // Now we gonna replay all events from the beginning
-        var allEvents = await eventStore.GetAllEvents(gameId);
+        var allEvents = await eventStore.GetAllEventsAsync(gameId);
         var replayedGameRoot = GameRoot.Rehydrate(allEvents, null);
 
         return replayedGameRoot;

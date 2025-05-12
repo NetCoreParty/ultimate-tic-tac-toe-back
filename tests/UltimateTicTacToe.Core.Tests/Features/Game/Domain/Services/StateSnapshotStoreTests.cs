@@ -64,7 +64,7 @@ public class StateSnapshotStoreTests
                 .Take(eventsSince)
                 .ToList();
 
-        _eventStoreMock.Setup(s => s.GetEventsAfterVersion(gameId, currentSnapshotVersion.Value))
+        _eventStoreMock.Setup(s => s.GetEventsAfterVersionAsync(gameId, currentSnapshotVersion.Value))
             .ReturnsAsync(eventsSinceSnapshot);
 
         // Act
@@ -86,7 +86,7 @@ public class StateSnapshotStoreTests
 
         gameRoot.SimulateMiniBoardWin(gameRoot.PlayerXId, gameRoot.PlayerOId);
 
-        _eventStoreMock.Setup(s => s.GetAllEvents(gameId)).ReturnsAsync(gameRoot.UncommittedChanges.ToList());
+        _eventStoreMock.Setup(s => s.GetAllEventsAsync(gameId)).ReturnsAsync(gameRoot.UncommittedChanges.ToList());
 
         // Act
         var rehydratedGameState = await _sut.TryLoadGameAsync(gameId, _eventStoreMock.Object);
