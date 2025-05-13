@@ -2,9 +2,9 @@
 using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
 using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using UltimateTicTacToe.Core.Features.Game.Domain.Exceptions;
-using UltimateTicTacToe.Core.Tests.Infrastructure;
+using UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
 
-namespace UltimateTicTacToe.Core.Tests.Features.Game.Domain.Aggregate;
+namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Aggregate;
 
 public class GameRootTests
 {

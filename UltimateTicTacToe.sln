@@ -11,14 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.API", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Core", "src\UltimateTicTacToe.Core\UltimateTicTacToe.Core.csproj", "{A28E3CE1-1F91-4A3B-AB2D-6E169E41BF64}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Core.Tests", "tests\UltimateTicTacToe.Core.Tests\UltimateTicTacToe.Core.Tests.csproj", "{928B0170-60FA-4DDF-80F9-E2590C202AB0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimateTicTacToe.Storage", "src\UltimateTicTacToe.Storage\UltimateTicTacToe.Storage.csproj", "{3041F075-8301-40CA-BA6D-8ACAD0824D4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Storage", "src\UltimateTicTacToe.Storage\UltimateTicTacToe.Storage.csproj", "{3041F075-8301-40CA-BA6D-8ACAD0824D4A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{C649850E-BC57-403D-8EEB-9DAFCB6BDD7A}"
 	ProjectSection(SolutionItems) = preProject
 		deploy\docker-compose.yaml = deploy\docker-compose.yaml
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Core.Tests.Unit", "tests\UltimateTicTacToe.Core.Tests.Unit\UltimateTicTacToe.Core.Tests.Unit.csproj", "{32E78060-C9F1-449E-9AF8-392D4FF2179D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,14 +34,14 @@ Global
 		{A28E3CE1-1F91-4A3B-AB2D-6E169E41BF64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A28E3CE1-1F91-4A3B-AB2D-6E169E41BF64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A28E3CE1-1F91-4A3B-AB2D-6E169E41BF64}.Release|Any CPU.Build.0 = Release|Any CPU
-		{928B0170-60FA-4DDF-80F9-E2590C202AB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{928B0170-60FA-4DDF-80F9-E2590C202AB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{928B0170-60FA-4DDF-80F9-E2590C202AB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{928B0170-60FA-4DDF-80F9-E2590C202AB0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3041F075-8301-40CA-BA6D-8ACAD0824D4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3041F075-8301-40CA-BA6D-8ACAD0824D4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3041F075-8301-40CA-BA6D-8ACAD0824D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3041F075-8301-40CA-BA6D-8ACAD0824D4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32E78060-C9F1-449E-9AF8-392D4FF2179D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32E78060-C9F1-449E-9AF8-392D4FF2179D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32E78060-C9F1-449E-9AF8-392D4FF2179D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32E78060-C9F1-449E-9AF8-392D4FF2179D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,8 +49,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E71B2F61-ACCF-4AD2-9679-194E09DE9424} = {B69AE3E2-AAA0-4DD0-9F0D-B7B04C459D30}
 		{A28E3CE1-1F91-4A3B-AB2D-6E169E41BF64} = {B69AE3E2-AAA0-4DD0-9F0D-B7B04C459D30}
-		{928B0170-60FA-4DDF-80F9-E2590C202AB0} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 		{3041F075-8301-40CA-BA6D-8ACAD0824D4A} = {B69AE3E2-AAA0-4DD0-9F0D-B7B04C459D30}
+		{32E78060-C9F1-449E-9AF8-392D4FF2179D} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB02C1B5-2F7A-4CA3-9D74-8DE5B170EF25}

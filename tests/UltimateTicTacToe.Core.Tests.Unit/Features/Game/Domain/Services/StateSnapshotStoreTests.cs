@@ -5,9 +5,9 @@ using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
 using UltimateTicTacToe.Core.Features.Game.Domain.Entities.Snapshot;
 using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using UltimateTicTacToe.Core.Services;
-using UltimateTicTacToe.Core.Tests.Infrastructure;
+using UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
 
-namespace UltimateTicTacToe.Core.Tests.Features.Game.Domain.Services;
+namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Services;
 
 public class StateSnapshotStoreTests
 {
