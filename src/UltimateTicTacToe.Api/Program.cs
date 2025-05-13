@@ -1,4 +1,3 @@
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson;
 using UltimateTicTacToe.API.Hubs;
 using UltimateTicTacToe.Core.Configuration;
@@ -7,7 +6,6 @@ using UltimateTicTacToe.Storage.Services;
 using MongoDB.Bson.Serialization;
 using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using MongoDB.Bson.Serialization.Serializers;
-using Microsoft.Extensions.Options;
 using UltimateTicTacToe.Storage.HostedServices;
 
 namespace WebApplication1
