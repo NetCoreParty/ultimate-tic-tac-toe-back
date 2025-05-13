@@ -8,6 +8,7 @@ using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Storage.HostedServices;
 using UltimateTicTacToe.Storage.Services;
+using UltimateTicTacToe.Storage.Tests.Integration.Services;
 
 namespace UltimateTicTacToe.Storage.Tests.Integration;
 
