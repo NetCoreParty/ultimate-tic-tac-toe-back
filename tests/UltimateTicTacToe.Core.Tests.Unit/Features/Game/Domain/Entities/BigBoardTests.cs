@@ -1,6 +1,6 @@
 ﻿using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
 
-namespace UltimateTicTacToe.Core.Tests.Features.Game.Domain.Entities;
+namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Entities;
 
 public class BigBoardTests
 {

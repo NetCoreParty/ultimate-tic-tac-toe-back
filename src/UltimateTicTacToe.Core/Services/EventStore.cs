@@ -13,6 +13,16 @@ public interface IEventStore
     Task DeleteEventsByAsync(Guid gameAggregateId);
 }
 
+public class MongoIndexInfo
+{
+    public string Name { get; set; } = default!;
+    public Dictionary<string, int> KeyMap { get; set; } = new(); // e.g., { "AggregateId": 1, "Version": -1 }
+    public bool IsUnique { get; set; }
+
+    public override string ToString() =>
+        $"Name: {Name}, Unique: {IsUnique}, Keys: [{string.Join(", ", KeyMap.Select(k => $"{k.Key}:{k.Value}"))}]";
+}
+
 public class InMemoryEventStore : IEventStore
 {
     private readonly Dictionary<Guid, List<(int Version, IDomainEvent Event)>> _store = new();

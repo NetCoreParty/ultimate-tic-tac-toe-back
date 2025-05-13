@@ -4,7 +4,7 @@ using UltimateTicTacToe.Core.Extensions;
 using UltimateTicTacToe.Core.Features.Game.Domain.Entities.Snapshot;
 using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 
-namespace UltimateTicTacToe.Core.Tests.Extensions;
+namespace UltimateTicTacToe.Core.Tests.Unit.Extensions;
 
 public class GameRootExtensionsTests
 {

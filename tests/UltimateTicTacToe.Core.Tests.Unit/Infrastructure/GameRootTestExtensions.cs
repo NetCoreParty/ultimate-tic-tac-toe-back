@@ -1,6 +1,6 @@
 ﻿using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
 
-namespace UltimateTicTacToe.Core.Tests.Infrastructure;
+namespace UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
 
 internal static class GameRootTestExtensions
 {

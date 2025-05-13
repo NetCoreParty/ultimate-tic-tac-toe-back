@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UltimateTicTacToe.Core.Configuration;
+using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Storage.Services;
 
 namespace UltimateTicTacToe.Storage.HostedServices;
@@ -30,6 +31,32 @@ public class EventStoreInitializer : IHostedService
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    public async Task ClearIndexesAsync()
+    {
+        await _collection.Indexes.DropAllAsync();
+    }
+
+    public async Task<List<MongoIndexInfo>> GetAppliedIndexesInfo()
+    {
+        var indexes = await _collection.Indexes.ListAsync();
+        var rawIndexes = await indexes.ToListAsync();
+
+        return rawIndexes.Select(index => new MongoIndexInfo
+        {
+            Name = index["name"].AsString,
+            KeyMap = index["key"]
+                .AsBsonDocument
+                .Elements
+                .ToDictionary(
+                    e => e.Name,
+                    e => e.Value.ToInt32()), // 1 for ascending, -1 for descending index
+
+            // MongoDB marks _id_ index as unique implicitly, so we default it to true if not specified
+            IsUnique = index.GetValue("unique", index["name"] == "_id_").ToBoolean()
+
+        }).ToList();
+    }
 
     private async Task EnsureIndexesAsync(CancellationToken ct)
     {
@@ -74,5 +101,10 @@ public class EventStoreInitializer : IHostedService
 
         // Its safe to call this multiple times, Even if those indexes already exist
         await _collection.Indexes.CreateManyAsync(indexes, ct);
+    }
+
+    public async Task ClearDatabaseAsync()
+    {
+        await _collection.Database.DropCollectionAsync(_collection.CollectionNamespace.CollectionName);
     }
 }

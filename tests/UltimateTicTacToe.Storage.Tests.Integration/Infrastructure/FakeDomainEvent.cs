@@ -1,6 +1,6 @@
 ﻿using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 
-namespace UltimateTicTacToe.Core.Tests.Infrastructure;
+namespace UltimateTicTacToe.Storage.Tests.Integration.Infrastructure;
 
 public class FakeDomainEvent : IDomainEvent
 {
