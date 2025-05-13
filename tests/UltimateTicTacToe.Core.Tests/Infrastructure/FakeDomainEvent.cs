@@ -6,7 +6,7 @@ public class FakeDomainEvent : IDomainEvent
 {
     public string Name { get; set; }
 
-    public DateTime OccurredOn { get; init; }
+    public DateTime OccurredOn { get; set; }
 
     public int Version { get; set; }
 

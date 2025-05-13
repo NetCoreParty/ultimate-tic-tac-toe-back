@@ -14,7 +14,7 @@ public class GameplaySimulationController : ControllerBase
         _eventStore = eventStore;
     }
 
-    [HttpPost("clear-and-save-events")]
+    [HttpPost("play-and-clear-events")]
     public async Task<IActionResult> SimulateGame()
     {
         var gameId = Guid.NewGuid();
