@@ -1,9 +1,5 @@
 ﻿using Moq;
-using System.Linq;
 using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
-using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
-using UltimateTicTacToe.Core.Features.Game.Domain.Entities.Snapshot;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
 
