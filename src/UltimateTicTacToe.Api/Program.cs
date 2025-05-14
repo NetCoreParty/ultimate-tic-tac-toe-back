@@ -1,11 +1,12 @@
 using MongoDB.Bson;
 using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Storage.Services;
 using MongoDB.Bson.Serialization;
 using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using MongoDB.Bson.Serialization.Serializers;
 using UltimateTicTacToe.Storage.HostedServices;
+using Microsoft.Extensions.Configuration;
+using UltimateTicTacToe.Core.Features.Gameplay;
 
 namespace WebApplication1
 {
@@ -15,8 +16,15 @@ namespace WebApplication1
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            #region Game Repository
+
+            builder.Services.Configure<GameplaySettings>(builder.Configuration.GetSection("GameplaySettings"));
+            builder.Services.AddSingleton<IGameRepository, InMemoryGameRepository>();
+
+            #endregion
+
             #region Event Store
-            
+
             BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
             // Register base class and its known types
             BsonClassMap.RegisterClassMap<DomainEventBase>(cm =>
