@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Core.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Storage.Tests.Integration", "tests\UltimateTicTacToe.Storage.Tests.Integration\UltimateTicTacToe.Storage.Tests.Integration.csproj", "{ACCA9C71-1DF9-4413-BF21-906B6342FFE3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimateTicTacToe.API.Tests.Unit", "tests\UltimateTicTacToe.API.Tests.Unit\UltimateTicTacToe.API.Tests.Unit.csproj", "{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{ACCA9C71-1DF9-4413-BF21-906B6342FFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACCA9C71-1DF9-4413-BF21-906B6342FFE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACCA9C71-1DF9-4413-BF21-906B6342FFE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{3041F075-8301-40CA-BA6D-8ACAD0824D4A} = {B69AE3E2-AAA0-4DD0-9F0D-B7B04C459D30}
 		{32E78060-C9F1-449E-9AF8-392D4FF2179D} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 		{ACCA9C71-1DF9-4413-BF21-906B6342FFE3} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
+		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB02C1B5-2F7A-4CA3-9D74-8DE5B170EF25}
