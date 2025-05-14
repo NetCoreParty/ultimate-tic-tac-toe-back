@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Core.Features.Gameplay;
 
 namespace UltimateTicTacToe.Storage.Services;
 
@@ -19,7 +19,7 @@ public class MongoEventStore : IEventStore
         _collection = database.GetCollection<StoredEvent>(settings.Value.EventsCollectionName);
     }    
 
-    public async Task AppendEventsAsync(Guid gameAggregateId, IEnumerable<IDomainEvent> events)
+    public async Task AppendEventsAsync(Guid gameAggregateId, IEnumerable<IDomainEvent> events, CancellationToken ct = default)
     {
         var storedEvents = events.Select(e => new StoredEvent
         {
@@ -34,7 +34,7 @@ public class MongoEventStore : IEventStore
         await _collection.InsertManyAsync(storedEvents);
     }
 
-    public async Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId)
+    public async Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId, CancellationToken ct = default)
     {
         var storedEvents = await _collection
             .Find(e => e.AggregateId == gameAggregateId)
@@ -45,7 +45,7 @@ public class MongoEventStore : IEventStore
             .ToList();
     }
 
-    public async Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid gameAggregateId, int version)
+    public async Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid gameAggregateId, int version, CancellationToken ct = default)
     {
         var storedEvents = await _collection
             .Find(e => e.AggregateId == gameAggregateId && e.EventVersion > version)
@@ -57,7 +57,7 @@ public class MongoEventStore : IEventStore
             .ToList();
     }
 
-    public async Task DeleteEventsByAsync(Guid gameAggregateId)
+    public async Task DeleteEventsByAsync(Guid gameAggregateId, CancellationToken ct = default)
     {
         await _collection.DeleteManyAsync(e => e.AggregateId == gameAggregateId);
     }

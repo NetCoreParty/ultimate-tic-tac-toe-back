@@ -1,16 +1,16 @@
 ﻿using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 
-namespace UltimateTicTacToe.Core.Services;
+namespace UltimateTicTacToe.Core.Features.Gameplay;
 
 public interface IEventStore
 {
-    Task AppendEventsAsync(Guid gameAggregateId, IEnumerable<IDomainEvent> events);
+    Task AppendEventsAsync(Guid gameAggregateId, IEnumerable<IDomainEvent> events, CancellationToken ct);
 
-    Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId);
+    Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId, CancellationToken ct);
 
-    Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid gameAggregateId, int version);
+    Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid gameAggregateId, int version, CancellationToken ct);
 
-    Task DeleteEventsByAsync(Guid gameAggregateId);
+    Task DeleteEventsByAsync(Guid gameAggregateId, CancellationToken ct);
 }
 
 public class MongoIndexInfo
@@ -27,7 +27,7 @@ public class InMemoryEventStore : IEventStore
 {
     private readonly Dictionary<Guid, List<(int Version, IDomainEvent Event)>> _store = new();
 
-    public Task AppendEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events)
+    public Task AppendEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, CancellationToken ct = default)
     {
         if (!_store.ContainsKey(aggregateId))
             _store[aggregateId] = new();
@@ -43,7 +43,7 @@ public class InMemoryEventStore : IEventStore
         return Task.CompletedTask;
     }
 
-    public Task<List<IDomainEvent>> GetAllEventsAsync(Guid aggregateId)
+    public Task<List<IDomainEvent>> GetAllEventsAsync(Guid aggregateId, CancellationToken ct = default)
     {
         if (_store.TryGetValue(aggregateId, out var events))
             return Task.FromResult(events.Select(e => e.Event).ToList());
@@ -51,7 +51,7 @@ public class InMemoryEventStore : IEventStore
         return Task.FromResult(new List<IDomainEvent>());
     }
 
-    public Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid aggregateId, int version)
+    public Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid aggregateId, int version, CancellationToken ct = default)
     {
         if (!_store.ContainsKey(aggregateId))
             return Task.FromResult(new List<IDomainEvent>());
@@ -64,7 +64,7 @@ public class InMemoryEventStore : IEventStore
         );
     }
 
-    public Task DeleteEventsByAsync(Guid aggregateId)
+    public Task DeleteEventsByAsync(Guid aggregateId, CancellationToken ct = default)
     {
         if (_store.ContainsKey(aggregateId))
             _store.Remove(aggregateId);

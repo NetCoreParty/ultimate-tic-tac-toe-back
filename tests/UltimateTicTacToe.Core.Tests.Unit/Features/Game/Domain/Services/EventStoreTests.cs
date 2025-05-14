@@ -1,5 +1,5 @@
 ﻿using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Core.Features.Gameplay;
 using UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
 
 namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Services;

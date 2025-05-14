@@ -1,21 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
-using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Core.Features.Gameplay;
 
 namespace UltimateTicTacToe.API.Controllers;
 
-[Route("api/[controller]")]
-public class GameplaySimulationController : ControllerBase
+[Route("api/gameplay-test-simulation")]
+public class GameplayTestSimulationController : ControllerBase
 {
     private readonly IEventStore _eventStore;
 
-    public GameplaySimulationController(IEventStore eventStore)
+    public GameplayTestSimulationController(IEventStore eventStore)
     {
         _eventStore = eventStore;
     }
 
     [HttpPost("play-and-clear-events")]
-    public async Task<IActionResult> SimulateGame()
+    public async Task<IActionResult> SimulateGame(CancellationToken ct = default)
     {
         var gameId = Guid.NewGuid();
         var onePlayerId = Guid.NewGuid();
@@ -26,14 +26,14 @@ public class GameplaySimulationController : ControllerBase
         gameRoot.PlayMove(onePlayerId, 0, 0, 0, 0);
         gameRoot.PlayMove(anotherPlayerId, 0, 0, 0, 1);
 
-        await _eventStore.AppendEventsAsync(gameId, gameRoot.UncommittedChanges);
+        await _eventStore.AppendEventsAsync(gameId, gameRoot.UncommittedChanges, ct);
 
-        var lastEvents = await _eventStore.GetEventsAfterVersionAsync(gameId, gameRoot.Version - 2);
+        var lastEvents = await _eventStore.GetEventsAfterVersionAsync(gameId, gameRoot.Version - 2, ct);
 
         // Clear uncommitted events after saving to the event store
         GameRoot.ClearUncomittedEvents(gameRoot);
         
-        await _eventStore.DeleteEventsByAsync(gameId);
+        await _eventStore.DeleteEventsByAsync(gameId, ct);
 
         return Ok(new
         {

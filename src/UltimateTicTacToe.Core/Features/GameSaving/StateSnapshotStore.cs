@@ -1,10 +1,11 @@
 ﻿using System.Text.Json;
 using UltimateTicTacToe.Core.Extensions;
 using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
-using UltimateTicTacToe.Core.Features.Game.Domain.Entities.Snapshot;
 using UltimateTicTacToe.Core.Features.Game.Domain.Events;
+using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Features.GameSaving.Entities.Snapshot;
 
-namespace UltimateTicTacToe.Core.Services;
+namespace UltimateTicTacToe.Core.Features.GameSaving;
 
 public interface IStateSnapshotStore
 {

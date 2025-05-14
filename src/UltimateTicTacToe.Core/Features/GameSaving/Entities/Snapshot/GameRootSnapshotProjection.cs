@@ -1,4 +1,6 @@
-﻿namespace UltimateTicTacToe.Core.Features.Game.Domain.Entities.Snapshot;
+﻿using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
+
+namespace UltimateTicTacToe.Core.Features.GameSaving.Entities.Snapshot;
 
 public class GameRootSnapshotProjection
 {

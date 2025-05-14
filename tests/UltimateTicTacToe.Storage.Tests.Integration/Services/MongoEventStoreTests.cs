@@ -1,5 +1,5 @@
 ﻿using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Core.Features.Gameplay;
 using UltimateTicTacToe.Storage.HostedServices;
 using UltimateTicTacToe.Storage.Tests.Integration.Infrastructure;
 
