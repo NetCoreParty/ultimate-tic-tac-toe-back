@@ -4,13 +4,13 @@ namespace UltimateTicTacToe.Core.Features.Gameplay;
 
 public interface IEventStore
 {
-    Task AppendEventsAsync(Guid gameAggregateId, IEnumerable<IDomainEvent> events, CancellationToken ct);
+    Task AppendEventsAsync(Guid gameAggregateId, IEnumerable<IDomainEvent> events, CancellationToken ct = default);
 
-    Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId, CancellationToken ct);
+    Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId, CancellationToken ct = default);
 
-    Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid gameAggregateId, int version, CancellationToken ct);
+    Task<List<IDomainEvent>> GetEventsAfterVersionAsync(Guid gameAggregateId, int version, CancellationToken ct = default);
 
-    Task DeleteEventsByAsync(Guid gameAggregateId, CancellationToken ct);
+    Task DeleteEventsByAsync(Guid gameAggregateId, CancellationToken ct = default);
 }
 
 public class MongoIndexInfo
