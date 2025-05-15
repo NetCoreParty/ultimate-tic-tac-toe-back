@@ -55,7 +55,7 @@ public static class ResultExtensions
     public static IActionResult ToActionResult<T>(this Result<T> result)
     {
         return result.IsSuccess
-            ? new ObjectResult(result.Value) { StatusCode = result.Code }
+            ? new OkObjectResult(result.Value) { StatusCode = result.Code }
             : new ObjectResult(new { error = result.Error }) { StatusCode = result.Code };
     }
 }

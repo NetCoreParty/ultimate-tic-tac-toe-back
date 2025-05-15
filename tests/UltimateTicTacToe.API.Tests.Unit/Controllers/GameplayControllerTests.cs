@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using UltimateTicTacToe.API.Controllers;
 using UltimateTicTacToe.Core.Features.Gameplay;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UltimateTicTacToe.API.Tests.Unit.Controllers;
 
@@ -40,7 +41,7 @@ public class GameplayControllerTests
 
         var objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(429, objectResult.StatusCode);
-        Assert.Equal("Too many games", objectResult.Value);
+        Assert.Equivalent(new { error = "Too many games" }, objectResult.Value);
     }
 
     [Fact]
@@ -67,7 +68,7 @@ public class GameplayControllerTests
 
         var objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(404, objectResult.StatusCode);
-        Assert.Equal("Game not found", objectResult.Value);
+        Assert.Equivalent(new { error = "Game not found" }, objectResult.Value);
     }
 
     [Fact]
@@ -90,6 +91,6 @@ public class GameplayControllerTests
         var result = _controller.GetGamesNow();
 
         var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(5, okResult.Value);
+        Assert.Equivalent(new { GamesNow = 5 }, okResult.Value);
     }
 }
