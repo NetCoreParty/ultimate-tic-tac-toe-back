@@ -22,6 +22,7 @@ public class InMemoryGameRepository : IGameRepository
     private readonly IEventStore _eventStore;
     private readonly ILogger<InMemoryGameRepository> _logger;
     private readonly GameplaySettings _gameplaySettings;
+    private const int _maxSemaphoreTimeoutMs = 400;
 
     private readonly ConcurrentDictionary<Guid, GameRoot> _games = new();
     private readonly SemaphoreSlim _semaphore = new(initialCount: 1, maxCount: 1);
@@ -50,7 +51,7 @@ public class InMemoryGameRepository : IGameRepository
 
     private async Task<Result<StartGameResponse>> TryCreateGameAsync(CancellationToken ct)
     {
-        await _semaphore.WaitAsync(ct);
+        await _semaphore.WaitAsync(_maxSemaphoreTimeoutMs, ct);
 
         try
         {
@@ -86,7 +87,7 @@ public class InMemoryGameRepository : IGameRepository
         // TODO: implement loading game feature later
         //var gameRoot = await _snapshotService.TryLoadGameAsync(move.GameId, _eventStore);
 
-        await _semaphore.WaitAsync();
+        await _semaphore.WaitAsync(_maxSemaphoreTimeoutMs, ct);
 
         try
         {
