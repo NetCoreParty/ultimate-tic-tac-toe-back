@@ -24,6 +24,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Storage.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimateTicTacToe.API.Tests.Unit", "tests\UltimateTicTacToe.API.Tests.Unit\UltimateTicTacToe.API.Tests.Unit.csproj", "{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{D83A1A69-1F0A-4222-8F81-76F8646A128A}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		docs\ROADMAP.md = docs\ROADMAP.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

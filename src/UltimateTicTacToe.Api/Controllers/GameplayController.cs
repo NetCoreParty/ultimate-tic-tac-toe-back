@@ -14,17 +14,6 @@ public class GameplayController : ControllerBase
         _gameRepo = gameService;
     }
 
-    /*
-        Gameplay HTTP Endpoints
-
-        Method		URL			                Purpose
-
-        POST		api/game/start		        Start a new game
-        POST		api/game/move   		    Make a move in the game        
-        DELETE		api/game/clear		        Delete all the finished games (WON or DRAW) from memory
-        GET		    api/game/metrics/games-now	Get all in-memory games count
-    */
-
     [HttpPost("start")]
     public async Task<IActionResult> StartGame(CancellationToken ct = default)
     {
