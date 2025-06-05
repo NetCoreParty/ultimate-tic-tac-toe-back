@@ -2,11 +2,11 @@ using MongoDB.Bson;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Storage.Services;
 using MongoDB.Bson.Serialization;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using MongoDB.Bson.Serialization.Serializers;
 using UltimateTicTacToe.Storage.HostedServices;
-using Microsoft.Extensions.Configuration;
-using UltimateTicTacToe.Core.Features.Gameplay;
+,using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Features.GamePlay;
 
 namespace WebApplication1
 {
@@ -46,6 +46,7 @@ namespace WebApplication1
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddControllers();
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MakeMoveCommand).Assembly));
             builder.Services.AddSignalR();
 
             #region CORS

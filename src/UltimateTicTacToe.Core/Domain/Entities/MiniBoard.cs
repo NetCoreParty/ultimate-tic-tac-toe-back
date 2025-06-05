@@ -1,6 +1,6 @@
 ﻿using UltimateTicTacToe.Core.Extensions;
 
-namespace UltimateTicTacToe.Core.Features.Game.Domain.Entities;
+namespace UltimateTicTacToe.Core.Domain.Entities;
 
 public class MiniBoard
 {

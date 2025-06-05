@@ -1,4 +1,4 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Events;
+﻿using UltimateTicTacToe.Core.Domain.Events;
 
 namespace UltimateTicTacToe.Storage.Tests.Integration.Infrastructure;
 

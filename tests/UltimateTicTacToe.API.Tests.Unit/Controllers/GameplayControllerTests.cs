@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using UltimateTicTacToe.API.Controllers;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UltimateTicTacToe.API.Tests.Unit.Controllers;
@@ -88,7 +88,7 @@ public class GameplayControllerTests
     {
         _repositoryMock.Setup(x => x.GamesNow).Returns(5);
 
-        var result = _controller.GetGamesNow();
+        var result = _controller.GetUnfinishedGames();
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equivalent(new { GamesNow = 5 }, okResult.Value);

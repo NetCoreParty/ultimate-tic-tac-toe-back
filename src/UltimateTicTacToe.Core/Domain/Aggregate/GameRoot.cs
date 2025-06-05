@@ -1,8 +1,8 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
+﻿using UltimateTicTacToe.Core.Domain.Entities;
+using UltimateTicTacToe.Core.Domain.Events;
 using UltimateTicTacToe.Core.Features.Game.Domain.Exceptions;
 
-namespace UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
+namespace UltimateTicTacToe.Core.Domain.Aggregate;
 
 /// <summary>
 /// Aggregate Root for the game. Should be the one that:
@@ -125,7 +125,7 @@ public class GameRoot
         {
             gameRoot.When(_event, isEventReplay: true);
             gameRoot.Version++;
-        }            
+        }
 
         return gameRoot;
     }
@@ -141,7 +141,7 @@ public class GameRoot
         When(_event);
         Version++;
         _event.Version = Version;
-        
+
         _uncommittedChanges.Add(_event);
     }
 

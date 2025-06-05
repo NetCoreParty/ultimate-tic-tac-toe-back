@@ -1,4 +1,4 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
+﻿using UltimateTicTacToe.Core.Domain.Entities;
 
 namespace UltimateTicTacToe.Core.Features.GameSaving.Entities.Snapshot;
 

@@ -1,4 +1,4 @@
-﻿namespace UltimateTicTacToe.Core.Features.Game.Domain.Entities;
+﻿namespace UltimateTicTacToe.Core.Domain.Entities;
 
 public class Cell
 {
@@ -27,7 +27,7 @@ public class Cell
     public Cell Clone()
     {
         var clone = new Cell(RowId, ColId, Figure);
-        
+
         return clone;
     }
 }

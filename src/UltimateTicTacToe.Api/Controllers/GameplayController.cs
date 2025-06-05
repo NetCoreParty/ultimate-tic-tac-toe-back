@@ -1,42 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using UltimateTicTacToe.Core.Features.Gameplay;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using UltimateTicTacToe.Core.Features.GamePlay;
+using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.API.Controllers;
 
 [ApiController]
 [Route("api/game")]
-public class GameplayController : ControllerBase
+public class GamePlayController : ControllerBase
 {
-    private readonly IGameRepository _gameRepo;
-
-    public GameplayController(IGameRepository gameService)
+    private readonly IMediator _mediator;
+    
+    public GamePlayController(IMediator mediator)
     {
-        _gameRepo = gameService;
+        _mediator = mediator;
     }
 
     [HttpPost("start")]
     public async Task<IActionResult> StartGame(CancellationToken ct = default)
     {
-        var result = await _gameRepo.TryStartGameAsync(ct);
-        return result.ToActionResult();
+        var newGameResult = await _mediator.Send(new StartGameCommand(), ct);
+        return newGameResult.ToActionResult();
     }
 
     [HttpPost("move")]
     public async Task<IActionResult> MakeMove([FromBody] PlayerMoveRequest makeMoveRequest, CancellationToken ct = default)
     {
-        var result = await _gameRepo.TryMakeMoveAsync(makeMoveRequest, ct);
-        return result.ToActionResult();
+        
+        var madeMoveResult = await _mediator.Send(new MakeMoveCommand(makeMoveRequest), ct);
+        return madeMoveResult.ToActionResult();
     }
-
-    [HttpDelete("clear")]
-    public async Task<IActionResult> ClearFinishedGames(CancellationToken ct)
-    {
-        var result = await _gameRepo.TryClearFinishedGames(ct);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("metrics/games-now")]
-    public IActionResult GetGamesNow() => Ok(new { _gameRepo.GamesNow });
 }
 
 public static class ResultExtensions
@@ -45,6 +38,6 @@ public static class ResultExtensions
     {
         return result.IsSuccess
             ? new OkObjectResult(result.Value) { StatusCode = result.Code }
-            : new ObjectResult(new { error = result.Error }) { StatusCode = result.Code };
+            : new BadRequestObjectResult(new { error = result.Error }) { StatusCode = result.Code };
     }
 }

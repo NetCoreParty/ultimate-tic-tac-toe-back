@@ -1,6 +1,6 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
-using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
+﻿using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Domain.Entities;
+using UltimateTicTacToe.Core.Domain.Events;
 using UltimateTicTacToe.Core.Features.GameSaving.Entities.Snapshot;
 
 namespace UltimateTicTacToe.Core.Extensions;

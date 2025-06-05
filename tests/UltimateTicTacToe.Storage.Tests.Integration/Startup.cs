@@ -4,11 +4,11 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson;
 using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
 using UltimateTicTacToe.Storage.HostedServices;
 using UltimateTicTacToe.Storage.Services;
 using UltimateTicTacToe.Storage.Tests.Integration.Services;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Storage.Tests.Integration;
 

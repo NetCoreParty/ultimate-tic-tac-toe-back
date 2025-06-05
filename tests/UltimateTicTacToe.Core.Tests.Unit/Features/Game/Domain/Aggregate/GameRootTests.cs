@@ -1,7 +1,7 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
-using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Core.Features.Game.Domain.Exceptions;
+﻿using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Domain.Entities;
+using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Domain.Exceptions;
 using UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
 
 namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Aggregate;

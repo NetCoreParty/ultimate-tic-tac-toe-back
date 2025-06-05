@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Storage.Services;
 
 namespace UltimateTicTacToe.Storage.HostedServices;

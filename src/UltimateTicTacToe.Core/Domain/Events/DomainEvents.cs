@@ -1,6 +1,6 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Entities;
+﻿using UltimateTicTacToe.Core.Domain.Entities;
 
-namespace UltimateTicTacToe.Core.Features.Game.Domain.Events;
+namespace UltimateTicTacToe.Core.Domain.Events;
 
 public interface IDomainEvent
 {

@@ -3,8 +3,8 @@ using Microsoft.Extensions.Options;
 using Moq;
 using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Core.Tests.Unit.Features.Gameplay;
 

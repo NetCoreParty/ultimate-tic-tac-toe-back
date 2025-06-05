@@ -1,4 +1,4 @@
-﻿namespace UltimateTicTacToe.Core.Features.Game.Domain.Exceptions;
+﻿namespace UltimateTicTacToe.Core.Domain.Exceptions;
 
 public abstract class DomainException : Exception
 {

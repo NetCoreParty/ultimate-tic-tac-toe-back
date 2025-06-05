@@ -25,6 +25,14 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [ ] HTTP middleware for trace correlation (SkyWalking)
 - [ ] Basic game UI (Vue3) for local play
 
+- [ ] 1. HTTP Endpoint for Sending Moves to Server - Use this to accept new moves from the frontend
+- [ ] 2. HTTP Endpoint for Initial Move History (With Pagination) - Great for loading full or partial history when the game starts or when reconnecting
+- [ ] 3. WebSocket Hub for keeping up with Real-Time server's updates						  
+	Submit a move		    HTTP POST
+    Load move history	    HTTP GET
+    Real-time move updates	SignalR Hub
+    Move errors/feedback	SignalR Hub
+
 ---
 
 ## 📝 Planned Features

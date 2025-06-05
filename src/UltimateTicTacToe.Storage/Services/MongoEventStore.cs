@@ -3,8 +3,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Storage.Services;
 

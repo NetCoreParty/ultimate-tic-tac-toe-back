@@ -1,4 +1,4 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
+﻿using UltimateTicTacToe.Core.Domain.Aggregate;
 
 namespace UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
 

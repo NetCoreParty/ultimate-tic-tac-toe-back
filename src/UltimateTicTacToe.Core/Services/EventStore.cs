@@ -1,6 +1,6 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Events;
+﻿using UltimateTicTacToe.Core.Domain.Events;
 
-namespace UltimateTicTacToe.Core.Features.Gameplay;
+namespace UltimateTicTacToe.Core.Services;
 
 public interface IEventStore
 {

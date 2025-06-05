@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
+using UltimateTicTacToe.Core.Domain.Aggregate;
 
-namespace UltimateTicTacToe.Core.Features.Gameplay;
+namespace UltimateTicTacToe.Core.Services;
 
 public interface IGameRepository
 {
