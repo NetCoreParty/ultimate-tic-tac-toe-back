@@ -35,8 +35,8 @@ public class GameplayController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("metrics/games-now")]
-    public IActionResult GetGamesNow() => Ok(new { _gameRepo.GamesNow });
+    [HttpGet("metrics/games-in-process")]
+    public IActionResult GetGamesInProcess() => Ok(new { _gameRepo.GamesNow });
 }
 
 public static class ResultExtensions

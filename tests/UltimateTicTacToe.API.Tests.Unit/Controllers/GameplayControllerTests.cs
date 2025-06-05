@@ -88,7 +88,7 @@ public class GameplayControllerTests
     {
         _repositoryMock.Setup(x => x.GamesNow).Returns(5);
 
-        var result = _controller.GetGamesNow();
+        var result = _controller.GetGamesInProcess();
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equivalent(new { GamesNow = 5 }, okResult.Value);
