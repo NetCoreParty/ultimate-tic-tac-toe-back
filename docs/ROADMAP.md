@@ -80,11 +80,11 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 
 ## 📅 Milestones
 
-| Version | Target Date | Features |
-|--------:|-------------|----------|
-| `v0.1`  | TBD          | MVP with local memory & basic HTTP API |
-| `v0.2`  | TBD          | Persistence layer, replay, and monitoring |
-| `v1.0`  | TBD          | Public release with UI and multiplayer |
+| Version | Target Date | Features									|
+|--------:|-------------|------------------------------------------	|
+| `v0.1`  | 06.2025     | MVP with local memory & basic HTTP API	|
+| `v0.2`  | 07.2025     | Persistence layer, replay, and monitoring |
+| `v1.0`  | 10.2025     | Public release with UI and multiplayer	|
 
 ---
 
