@@ -4,6 +4,7 @@ using Moq;
 using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Projections;
 using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Core.Tests.Unit.Features.Gameplay;
@@ -85,7 +86,7 @@ public class InMemoryGameRepositoryTests
         var game = GetPrivateGame(repo, gameId);
         game.ForceStatus(GameStatus.WON);
 
-        var clearResult = await repo.TryClearFinishedGames();
+        var clearResult = await repo.TryClearFinishedGamesAsync();
 
         Assert.True(clearResult.IsSuccess);
         Assert.Equal(0, repo.GamesNow);

@@ -1,96 +1,126 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using UltimateTicTacToe.API.Controllers;
-using UltimateTicTacToe.Core.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using UltimateTicTacToe.API.Tests.Unit.Extensions;
+using UltimateTicTacToe.Core;
+using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Features.GamePlay;
+using UltimateTicTacToe.Core.Projections;
 
 namespace UltimateTicTacToe.API.Tests.Unit.Controllers;
 
-public class GameplayControllerTests
+public class GamePlayControllerTests
 {
-    private readonly Mock<IGameRepository> _repositoryMock;
-    private readonly GameplayController _controller;
+    private readonly Mock<IMediator> _mediatorMock;
+    private readonly GamePlayController _sut;
 
-    public GameplayControllerTests()
+    public GamePlayControllerTests()
     {
-        _repositoryMock = new Mock<IGameRepository>();
-        _controller = new GameplayController(_repositoryMock.Object);
+        _mediatorMock = new Mock<IMediator>();
+        _sut = new GamePlayController(_mediatorMock.Object);
     }
 
     [Fact]
     public async Task StartGame_ReturnsOk_WhenGameStartedSuccessfully()
     {
-        var response = new StartGameResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
-        _repositoryMock.Setup(x => x.TryStartGameAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<StartGameResponse>.Success(response));
+        // Arrange
+        var expectedResult = Result<StartGameResponse>.Success(
+            new StartGameResponse(
+                GameId: Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                PlayerXId: Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                PlayerOId: Guid.Parse("00000000-0000-0000-0000-000000000003"),
+                GameState: GameStatus.IN_PROGRESS
+                )
+            );
 
-        var result = await _controller.StartGame(CancellationToken.None);
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<StartGameCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResult);
 
+        // Act
+        var result = await _sut.StartGame(CancellationToken.None);
+
+        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(200, okResult.StatusCode);
-        Assert.Equal(response, okResult.Value);
+        var actualResult = Assert.IsType<Result<StartGameResponse>>(okResult.Value);
+        actualResult.ShouldBeEquivalentTo(expectedResult);
     }
 
     [Fact]
     public async Task StartGame_ReturnsError_WhenFailedToStartGame()
     {
-        _repositoryMock.Setup(x => x.TryStartGameAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<StartGameResponse>.Failure(429, "Too many games"));
+        // Arrange
+        var expectedResult = Result<StartGameResponse>.Failure(429, "Please try later. Too many parallel games in memory.");
 
-        var result = await _controller.StartGame(CancellationToken.None);
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<StartGameCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResult);
 
-        var objectResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(429, objectResult.StatusCode);
-        Assert.Equivalent(new { error = "Too many games" }, objectResult.Value);
+        // Act
+        var result = await _sut.StartGame(CancellationToken.None);
+
+        // Assert
+        var failedResult = Assert.IsType<ObjectResult>(result);
+        var actualResult = Assert.IsType<Result<StartGameResponse>>(failedResult.Value);
+        actualResult.ShouldBeEquivalentTo(expectedResult);
     }
 
     [Fact]
     public async Task MakeMove_ReturnsOk_WhenMoveIsValid()
     {
-        var move = new PlayerMoveRequest(Guid.NewGuid(), Guid.NewGuid(), 0, 0, 1, 1);
-        _repositoryMock.Setup(x => x.TryMakeMoveAsync(move, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<bool>.Success(true));
+        // Arrange
+        var actualMoveRequest = new PlayerMoveRequest(
+            GameId: Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            PlayerId: Guid.Parse("00000000-0000-0000-0000-000000000002"),
+            MiniBoardRowId: 0,
+            MiniBoardColId: 0,
+            CellRowId: 1,
+            CellColId: 1
+            );
 
-        var result = await _controller.MakeMove(move, CancellationToken.None);
+        var expectedResult = Result<bool>.Success(true);
 
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<MakeMoveCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await _sut.MakeMove(actualMoveRequest, CancellationToken.None);
+
+        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(true, okResult.Value);
+        var actualResult = Assert.IsType<Result<bool>>(okResult.Value);
+        actualResult.ShouldBeEquivalentTo(expectedResult);
     }
 
     [Fact]
     public async Task MakeMove_ReturnsNotFound_WhenGameNotFound()
     {
-        var move = new PlayerMoveRequest(Guid.NewGuid(), Guid.NewGuid(), 0, 0, 1, 1);
-        _repositoryMock.Setup(x => x.TryMakeMoveAsync(move, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<bool>.Failure(404, "Game not found"));
+        // Arrange
+        var gameId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-        var result = await _controller.MakeMove(move, CancellationToken.None);
+        var actualMoveRequest = new PlayerMoveRequest(
+            GameId: gameId,
+            PlayerId: Guid.Parse("00000000-0000-0000-0000-000000000002"),
+            MiniBoardRowId: 0,
+            MiniBoardColId: 0,
+            CellRowId: 1,
+            CellColId: 1
+            );
 
-        var objectResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(404, objectResult.StatusCode);
-        Assert.Equivalent(new { error = "Game not found" }, objectResult.Value);
-    }
+        var expectedResult = Result<bool>.Failure(404, $"Game with ID {gameId} not found.");
 
-    [Fact]
-    public async Task ClearFinishedGames_ReturnsOk()
-    {
-        _repositoryMock.Setup(x => x.TryClearFinishedGames(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result<bool>.Success(true));
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<MakeMoveCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResult);
 
-        var result = await _controller.ClearFinishedGames(CancellationToken.None);
+        // Act
+        var result = await _sut.MakeMove(actualMoveRequest, CancellationToken.None);
 
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.True((bool)okResult.Value);
-    }
-
-    [Fact]
-    public void GetGamesNow_ReturnsCorrectCount()
-    {
-        _repositoryMock.Setup(x => x.GamesNow).Returns(5);
-
-        var result = _controller.GetUnfinishedGames();
-
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equivalent(new { GamesNow = 5 }, okResult.Value);
+        // Assert
+        var failedResult = Assert.IsType<NotFoundObjectResult>(result);
+        var actualResult = Assert.IsType<Result<bool>>(failedResult.Value);
+        actualResult.ShouldBeEquivalentTo(expectedResult);
     }
 }

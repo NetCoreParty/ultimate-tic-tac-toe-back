@@ -6,7 +6,6 @@ using MongoDB.Bson;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Storage.HostedServices;
 using UltimateTicTacToe.Storage.Services;
-using UltimateTicTacToe.Storage.Tests.Integration.Services;
 using UltimateTicTacToe.Core.Domain.Events;
 using UltimateTicTacToe.Core.Services;
 
