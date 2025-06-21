@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using UltimateTicTacToe.API.Extensions;
 using UltimateTicTacToe.Core.Features.Metrics;
 
 namespace UltimateTicTacToe.API.Controllers;
@@ -19,6 +20,6 @@ public class MetricsController : ControllerBase
     public async Task<IActionResult> GetUnfinishedGames(CancellationToken ct = default)
     {
         var gamesUnfinishedResult = await _mediator.Send(new GetUnfinishedGamesQuery(), ct);
-        return Ok(gamesUnfinishedResult);
+        return gamesUnfinishedResult.ToActionResult();
     }
 }

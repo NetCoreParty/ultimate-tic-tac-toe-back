@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using UltimateTicTacToe.API.Extensions;
 using UltimateTicTacToe.Core.Features.GameManagement;
 
 namespace UltimateTicTacToe.API.Controllers;

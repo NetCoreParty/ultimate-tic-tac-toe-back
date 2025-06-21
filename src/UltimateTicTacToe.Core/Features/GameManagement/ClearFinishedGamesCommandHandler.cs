@@ -3,19 +3,21 @@ using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Core.Features.GameManagement;
 
-public record ClearFinishedGamesCommand();
+public record ClearFinishedGamesCommand() : IRequest<Result<bool>>;
 
-public class ClearFinishedGamesCommandHandler : IRequestHandler<ClearFinishedGamesCommand, Result<>>
+public class ClearFinishedGamesCommandHandler : IRequestHandler<ClearFinishedGamesCommand, Result<bool>>
 {
-    private readonly IGameService _gameService;
+    private readonly IGameRepository _gameRepo;
 
-    public ClearFinishedGamesCommandHandler(IGameService gameService)
+    public ClearFinishedGamesCommandHandler(IGameRepository gameRepo)
     {
-        _gameService = gameService;
+        _gameRepo = gameRepo;
     }
 
-    public async Task<Result<>> Handle(ClearFinishedGamesCommand command, CancellationToken ct)
+    public async Task<Result<bool>> Handle(ClearFinishedGamesCommand command, CancellationToken ct)
     {
-        
+        var result = await _gameRepo.TryClearFinishedGamesAsync(ct);
+
+        return result;
     }
 }

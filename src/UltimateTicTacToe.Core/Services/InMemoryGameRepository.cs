@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Projections;
 
 namespace UltimateTicTacToe.Core.Services;
 
@@ -12,7 +13,8 @@ public interface IGameRepository
 
     Task<Result<bool>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default);
 
-    Task<Result<bool>> TryClearFinishedGames(CancellationToken ct = default);
+    Task<Result<bool>> TryClearFinishedGamesAsync(CancellationToken ct = default);
+    Task<Result<FilteredMovesHistoryResponse>> GetMovesFilteredByAsync(int skip, int take, CancellationToken ct);
 
     int GamesNow { get; }
 }
@@ -73,7 +75,7 @@ public class InMemoryGameRepository : IGameRepository
             }
 
             return Result<StartGameResponse>.Success(
-                new StartGameResponse(gameRoot.GameId, gameRoot.PlayerXId, gameRoot.PlayerOId)
+                new StartGameResponse(gameRoot.GameId, gameRoot.PlayerXId, gameRoot.PlayerOId, gameRoot.Status)
                 );
         }
         finally
@@ -138,7 +140,7 @@ public class InMemoryGameRepository : IGameRepository
         }
     }
 
-    public Task<Result<bool>> TryClearFinishedGames(CancellationToken ct = default)
+    public Task<Result<bool>> TryClearFinishedGamesAsync(CancellationToken ct = default)
     {
         var finishedGameIDs = _games
             .Where(x => _inactiveGameStatuses.Contains(x.Value.Status))
@@ -155,50 +157,16 @@ public class InMemoryGameRepository : IGameRepository
 
         if (finishedGameIDs.Count > 0)
         {
-            _logger.LogInformation($"{nameof(InMemoryGameRepository)}:{nameof(TryClearFinishedGames)}(): Removed {finishedGameIDs.Count} finished games from memory.");
+            _logger.LogInformation($"{nameof(InMemoryGameRepository)}:{nameof(TryClearFinishedGamesAsync)}(): Removed {finishedGameIDs.Count} finished games from memory.");
         }
 
         return Task.FromResult(
             Result<bool>.Success(true)
             );
     }
-}
 
-public record StartGameResponse(
-    Guid GameId,
-    Guid PlayerXId,
-    Guid PlayerOId
-    );
-
-public record PlayerMoveRequest(
-    Guid GameId,
-    Guid PlayerId,
-    int MiniBoardRowId,
-    int MiniBoardColId,
-    int CellRowId,
-    int CellColId
-)
-{
-    public override string ToString() =>
-        $"[GameId={GameId}, PlayerId={PlayerId}, MiniBoard=({MiniBoardRowId},{MiniBoardColId}), Cell=({CellRowId},{CellColId})]";
-}
-
-public class Result<T>
-{
-    public bool IsSuccess { get; }
-    public int Code { get; }
-    public string? Error { get; }
-    public T? Value { get; }
-
-    private Result(bool isSuccess, T? value, int code, string? error)
+    public Task<Result<FilteredMovesHistoryResponse>> GetMovesFilteredByAsync(int skip, int take, CancellationToken ct)
     {
-        IsSuccess = isSuccess;
-        Value = value;
-        Code = code;
-        Error = error;
+        throw new NotImplementedException();
     }
-
-    public static Result<T> Success(T value, int code = 200) => new(true, value, code, null);
-
-    public static Result<T> Failure(int code, string error) => new(false, default, code, error);
 }

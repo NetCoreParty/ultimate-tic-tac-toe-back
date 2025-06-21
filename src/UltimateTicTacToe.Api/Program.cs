@@ -4,9 +4,10 @@ using UltimateTicTacToe.Storage.Services;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using UltimateTicTacToe.Storage.HostedServices;
-,using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Core.Domain.Events;
 using UltimateTicTacToe.Core.Features.GamePlay;
+using UltimateTicTacToe.Core.Features.RealTimeMoveUpdates;
 
 namespace WebApplication1
 {
@@ -51,14 +52,17 @@ namespace WebApplication1
 
             #region CORS
 
+            builder.Services.Configure<CorsSettings>(builder.Configuration.GetSection("CorsSettings"));
+            var corsConfig = builder.Configuration.GetSection("CorsSettings").Get<CorsSettings>() ?? new CorsSettings();
+
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowLocalhost8080_Only",
-                    builder => builder
-                        .WithOrigins("http://localhost:8080")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials());
+                options.AddPolicy(corsConfig.PolicyName, policy =>
+                    policy
+                        .WithOrigins(corsConfig.AllowedOrigins.ToArray())
+                        .WithMethods("GET", "POST", "DELETE")
+                        .WithHeaders("Content-Type", "Authorization", "X-User-Id", "X-Ultimate-TTT-Header")
+                        .AllowCredentials()); // Only if you're using cookies or auth
             });
 
             #endregion
@@ -71,16 +75,16 @@ namespace WebApplication1
                 app.UseSwaggerUI();
                 app.UseDeveloperExceptionPage();
             }
-            
-            app.UseRouting();
 
-            //app.UseCors("AllowLocalhost8080_Only");
+            app.UseCors(corsConfig.PolicyName);
+
+            app.UseRouting();
 
             app.UseAuthorization();
             app.UseHttpsRedirection();
 
-            //app.MapHub<GameHub>("game-hub");
-                //.RequireCors("AllowLocalhost8080_Only");
+            app.MapHub<MoveUpdatesHub>("/move-updates-hub")
+                .RequireCors(corsConfig.PolicyName);
 
             app.MapControllers();
 

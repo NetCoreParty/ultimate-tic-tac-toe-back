@@ -1,7 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using UltimateTicTacToe.API.Extensions;
 using UltimateTicTacToe.Core.Features.GamePlay;
-using UltimateTicTacToe.Core.Services;
+using UltimateTicTacToe.Core.Projections;
 
 namespace UltimateTicTacToe.API.Controllers;
 
@@ -26,18 +27,7 @@ public class GamePlayController : ControllerBase
     [HttpPost("move")]
     public async Task<IActionResult> MakeMove([FromBody] PlayerMoveRequest makeMoveRequest, CancellationToken ct = default)
     {
-        
         var madeMoveResult = await _mediator.Send(new MakeMoveCommand(makeMoveRequest), ct);
         return madeMoveResult.ToActionResult();
-    }
-}
-
-public static class ResultExtensions
-{
-    public static IActionResult ToActionResult<T>(this Result<T> result)
-    {
-        return result.IsSuccess
-            ? new OkObjectResult(result.Value) { StatusCode = result.Code }
-            : new BadRequestObjectResult(new { error = result.Error }) { StatusCode = result.Code };
     }
 }

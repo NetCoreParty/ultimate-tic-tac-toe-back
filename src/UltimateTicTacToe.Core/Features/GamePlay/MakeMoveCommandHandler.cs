@@ -1,36 +1,39 @@
 ﻿using MediatR;
 using UltimateTicTacToe.Core.Services;
+using Microsoft.AspNetCore.SignalR;
+using UltimateTicTacToe.Core.Features.RealTimeMoveUpdates;
+using UltimateTicTacToe.Core.Projections;
 
 namespace UltimateTicTacToe.Core.Features.GamePlay;
 
-public record MakeMoveCommand(PlayerMoveRequest makeMoveRequest);
+public record MakeMoveCommand(PlayerMoveRequest makeMoveRequest) : IRequest<Result<bool>>;
 
-public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<>>
+public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<bool>>
 {
-    private readonly IGameService _gameService;
-    private readonly IHubContext<GameHub> _hubContext;
+    private readonly IGameRepository _gameRepo;
+    private readonly IHubContext<MoveUpdatesHub> _hubContext;
 
-    public MakeMoveCommandHandler(IGameService gameService, IHubContext<GameHub> hubContext)
+    public MakeMoveCommandHandler(IGameRepository gameRepo, IHubContext<MoveUpdatesHub> hubContext)
     {
-        _gameService = gameService;
+        _gameRepo = gameRepo;
         _hubContext = hubContext;
     }
 
-    public async Task<Result<>> Handle(MakeMoveCommand request, CancellationToken ct)
+    public async Task<Result<bool>> Handle(MakeMoveCommand request, CancellationToken ct)
     {
-        var result = await _gameService.ApplyMoveAsync(request.GameId, request.Move);
-
-        var groupName = request.GameId.ToString();
+        var result = await _gameRepo.TryMakeMoveAsync(request.makeMoveRequest, ct);
+        var groupName = request.makeMoveRequest.GameId.ToString();
 
         if (!result.IsSuccess)
         {
             await _hubContext.Clients.Group(groupName)
-                .SendAsync("MoveRejected", result.Error, cancellationToken);
+                .SendAsync("MoveRejected", result.Error, ct);
+
             return result;
         }
 
         await _hubContext.Clients.Group(groupName)
-            .SendAsync("MoveApplied", result.Value, cancellationToken);
+            .SendAsync("MoveApplied", result.Value, ct);
 
         return result;
     }

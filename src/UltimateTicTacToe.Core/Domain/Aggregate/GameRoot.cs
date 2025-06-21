@@ -1,6 +1,6 @@
 ﻿using UltimateTicTacToe.Core.Domain.Entities;
 using UltimateTicTacToe.Core.Domain.Events;
-using UltimateTicTacToe.Core.Features.Game.Domain.Exceptions;
+using UltimateTicTacToe.Core.Domain.Exceptions;
 
 namespace UltimateTicTacToe.Core.Domain.Aggregate;
 
