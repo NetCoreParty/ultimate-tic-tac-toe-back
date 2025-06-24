@@ -1,5 +1,6 @@
 ﻿using Moq;
 using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Domain.Entities;
 using UltimateTicTacToe.Core.Features.GameSaving;
 using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
@@ -41,14 +42,14 @@ public class StateSnapshotStoreTests
         Assert.Equal(23, version);
     }
 
-    [Fact(Skip = "ToGameRoot() method from _sut.TryLoadGameAsync() cant be used, because we dont know exactly the order of moves to recreate a snapshot from a certain point, think about it later")]
+    [Fact]
     public async Task TryLoadGameAsync_WhenSnapshotExists_ShouldRehydrateFromSnapshot()
     {
         // Arrange
         var gameId = Guid.NewGuid();
         var gameRoot = GameRoot.CreateNew(gameId, Guid.NewGuid(), Guid.NewGuid());
         
-        // Play and create a snapshot
+        // Play and create a snapshot with MiniBoard (0,0) win
         gameRoot.SimulateMiniBoardWin(gameRoot.PlayerXId, gameRoot.PlayerOId);        
         var currentSnapshotVersion = await _sut.TryCreateSnapshotAsync(gameRoot);
 
@@ -72,6 +73,11 @@ public class StateSnapshotStoreTests
         Assert.NotNull(rehydratedGameState);
         Assert.Equal(gameId, rehydratedGameState.GameId);
         Assert.Equal(9, rehydratedGameState.Version);
+        
+        var miniBoardWithChanges = rehydratedGameState.Board.GetMiniBoard(0, 1);
+        Assert.False(miniBoardWithChanges.IsEmpty);
+        Assert.Equal(PlayerFigure.O, miniBoardWithChanges.GetCell(0, 0).Figure);
+        Assert.Equal(PlayerFigure.X, miniBoardWithChanges.GetCell(0, 1).Figure);
     }
 
     [Fact]
