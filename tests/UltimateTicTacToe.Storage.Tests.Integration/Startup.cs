@@ -1,14 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson;
-using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Storage.HostedServices;
-using UltimateTicTacToe.Storage.Services;
-using UltimateTicTacToe.Storage.Tests.Integration.Services;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Storage.Extensions;
 
 namespace UltimateTicTacToe.Storage.Tests.Integration;
 
@@ -26,10 +18,7 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        var eventStoreConfig = new EventStoreSettings();
-        AppConfiguration.GetSection("EventStoreSettings").Bind(eventStoreConfig);
-
-        services.AddTestEventStore(AppConfiguration, eventStoreConfig);
+        services.AddGlobalMongoSerialization();
     }
 }
 
@@ -39,23 +28,5 @@ internal static class TestConfigurationExtensions
     {
         var testConfig = Path.Combine(AppContext.BaseDirectory, "appsettings.Integration.Tests.json");
         configuration.AddJsonFile(testConfig, optional: false);
-    }
-
-    internal static void AddTestEventStore(this IServiceCollection services, IConfiguration applicationConfig, EventStoreSettings eventStoreConfig)
-    {
-        services.Configure<EventStoreSettings>(applicationConfig.GetSection("EventStoreSettings"));
-
-        BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-        // Register base class and its known types
-        BsonClassMap.RegisterClassMap<DomainEventBase>(cm =>
-        {
-            cm.AutoMap();
-            cm.SetIsRootClass(true);
-        });
-
-        BsonClassMap.RegisterClassMap<CellMarkedEvent>(cm => cm.AutoMap());
-
-        services.AddSingleton<IEventStore, MongoEventStore>();
-        services.AddSingleton<EventStoreInitializer>();
     }
 }

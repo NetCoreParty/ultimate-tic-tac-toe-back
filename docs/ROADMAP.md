@@ -15,16 +15,22 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] Configuration-driven gameplay settings via JSON
 - [x] Logging and diagnostics for moves and game lifecycle
 - [x] Integration with MongoDB for event store
+- [x] Snapshotting mechanism and event persistence
+- [x] Event replay to reconstruct game state
+- [x] 1. HTTP Endpoint for Sending Moves to Server - Use this to accept new moves from the frontend
+- [x] 3. WebSocket Hub for keeping up with Real-Time server's updates
+- [x] Integration tests for persistence and controller
+- [x] Property-based testing for game logic
 
 ---
 
 ## 🔄 In Progress
 
-- [ ] Snapshotting mechanism and event persistence
-- [ ] Event replay to reconstruct game state
-- [ ] HTTP middleware for trace correlation (SkyWalking)
+- [ ] HTTP middleware for trace correlation
+- [ ] HTTP middleware for CORS security
 - [ ] Basic game UI (Vue3) for local play
 
+- [ ] 2. HTTP Endpoint for Initial Move History (With Pagination) - Great for loading full or partial history when the game starts or when reconnecting
 ---
 
 ## 📝 Planned Features
@@ -63,9 +69,7 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 
 ## 🧪 Testing
 
-- [ ] Integration tests for persistence and controller
 - [ ] Load testing for high concurrency
-- [ ] Property-based testing for game logic
 
 ---
 

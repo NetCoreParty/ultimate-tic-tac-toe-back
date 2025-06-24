@@ -3,8 +3,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using UltimateTicTacToe.Core.Configuration;
-using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Storage.Services;
 
@@ -12,10 +12,8 @@ public class MongoEventStore : IEventStore
 {
     private readonly IMongoCollection<StoredEvent> _collection;
 
-    public MongoEventStore(IOptions<EventStoreSettings> settings)
+    public MongoEventStore(IMongoDatabase database, IOptions<EventStoreSettings> settings)
     {
-        var client = new MongoClient(settings.Value.ConnectionString);
-        var database = client.GetDatabase(settings.Value.DatabaseName);
         _collection = database.GetCollection<StoredEvent>(settings.Value.EventsCollectionName);
     }    
 

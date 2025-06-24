@@ -22,13 +22,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Core.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Storage.Tests.Integration", "tests\UltimateTicTacToe.Storage.Tests.Integration\UltimateTicTacToe.Storage.Tests.Integration.csproj", "{ACCA9C71-1DF9-4413-BF21-906B6342FFE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimateTicTacToe.API.Tests.Unit", "tests\UltimateTicTacToe.API.Tests.Unit\UltimateTicTacToe.API.Tests.Unit.csproj", "{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.API.Tests.Unit", "tests\UltimateTicTacToe.API.Tests.Unit\UltimateTicTacToe.API.Tests.Unit.csproj", "{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{D83A1A69-1F0A-4222-8F81-76F8646A128A}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 		docs\ROADMAP.md = docs\ROADMAP.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimateTicTacToe.Core.Tests.Integration", "tests\UltimateTicTacToe.Core.Tests.Integration\UltimateTicTacToe.Core.Tests.Integration.csproj", "{78B420D4-C46E-4408-826D-56D8772583D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +62,10 @@ Global
 		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78B420D4-C46E-4408-826D-56D8772583D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78B420D4-C46E-4408-826D-56D8772583D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78B420D4-C46E-4408-826D-56D8772583D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78B420D4-C46E-4408-826D-56D8772583D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +77,7 @@ Global
 		{32E78060-C9F1-449E-9AF8-392D4FF2179D} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 		{ACCA9C71-1DF9-4413-BF21-906B6342FFE3} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
+		{78B420D4-C46E-4408-826D-56D8772583D6} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB02C1B5-2F7A-4CA3-9D74-8DE5B170EF25}

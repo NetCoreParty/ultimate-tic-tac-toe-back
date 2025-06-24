@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using UltimateTicTacToe.Core.Features.Game.Domain.Aggregate;
-using UltimateTicTacToe.Core.Features.Gameplay;
+using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.API.Controllers;
 
 [Route("api/gameplay-test-simulation")]
-public class GameplayTestSimulationController : ControllerBase
+public class GamePlayTestSimulationController : ControllerBase
 {
     private readonly IEventStore _eventStore;
 
-    public GameplayTestSimulationController(IEventStore eventStore)
+    public GamePlayTestSimulationController(IEventStore eventStore)
     {
         _eventStore = eventStore;
     }

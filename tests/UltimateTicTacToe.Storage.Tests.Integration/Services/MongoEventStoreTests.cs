@@ -1,36 +1,50 @@
-﻿using UltimateTicTacToe.Core.Features.Game.Domain.Events;
-using UltimateTicTacToe.Core.Features.Gameplay;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Moq;
+using UltimateTicTacToe.Core.Configuration;
+using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Storage.HostedServices;
+using UltimateTicTacToe.Storage.Services;
 using UltimateTicTacToe.Storage.Tests.Integration.Infrastructure;
 
 namespace UltimateTicTacToe.Storage.Tests.Integration.Services;
 
 [Collection("MongoEventStoreTests")]
-public class MongoEventStoreTests : IAsyncLifetime
+public class MongoEventStoreTests : IClassFixture<MongoDbFixture>, IAsyncLifetime
 {
-    private readonly IEventStore _eventStore;
-    private readonly EventStoreInitializer _storeInitializer;
-    private readonly Guid _testGameId = Guid.NewGuid();
+    private readonly IEventStore _sut;
 
-    public MongoEventStoreTests(
-        IEventStore eventStore,
-        EventStoreInitializer storeInitializer
-        )
+    private readonly EventStoreInitializer _realStoreInitializer;
+    private readonly Guid _testGameId = Guid.NewGuid();
+    private readonly IMongoDatabase _dbFixture;
+    private readonly Mock<ILogger<EventStoreInitializer>> _loggerMock = new Mock<ILogger<EventStoreInitializer>>();
+
+    public MongoEventStoreTests(MongoDbFixture fixture)
     {
-        _eventStore = eventStore;
-        _storeInitializer = storeInitializer;
+        var settings = Options.Create(new EventStoreSettings
+        {
+            ConnectionString = fixture.Runner.ConnectionString,
+            DatabaseName = fixture.DatabaseName,
+            EventsCollectionName = fixture.CollectionName
+        });
+
+        _dbFixture = fixture.Database;
+        _realStoreInitializer = new EventStoreInitializer(_dbFixture, settings, _loggerMock.Object);
+        _sut = new MongoEventStore(_dbFixture, settings);
     }
 
     public async Task InitializeAsync()
     {
-        await _storeInitializer.StartAsync(default);
+        await _realStoreInitializer.StartAsync(CancellationToken.None);
     }
 
     public async Task DisposeAsync()
     {
-        await _eventStore.DeleteEventsByAsync(_testGameId);
-        await _storeInitializer.ClearIndexesAsync();
-        await _storeInitializer.ClearDatabaseAsync();
+        await _sut.DeleteEventsByAsync(_testGameId);
+        await _realStoreInitializer.ClearIndexesAsync();
+        await _realStoreInitializer.ClearDatabaseAsync();
     }
 
     [Fact]
@@ -44,9 +58,9 @@ public class MongoEventStoreTests : IAsyncLifetime
         };
 
         // Act
-        await _eventStore.AppendEventsAsync(_testGameId, events);
+        await _sut.AppendEventsAsync(_testGameId, events);
 
-        var loadedEvents = await _eventStore.GetAllEventsAsync(_testGameId);
+        var loadedEvents = await _sut.GetAllEventsAsync(_testGameId);
 
         // Assert
         Assert.Equal(2, loadedEvents.Count);
@@ -64,9 +78,9 @@ public class MongoEventStoreTests : IAsyncLifetime
         };
 
         // Act
-        await _eventStore.AppendEventsAsync(_testGameId, events);
+        await _sut.AppendEventsAsync(_testGameId, events);
 
-        var result = await _eventStore.GetEventsAfterVersionAsync(_testGameId, 1);
+        var result = await _sut.GetEventsAfterVersionAsync(_testGameId, 1);
 
         // Assert
         Assert.Single(result);

@@ -1,4 +1,4 @@
-﻿using UltimateTicTacToe.Core.Features.Gameplay;
+﻿using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Storage.Tests.Integration.Infrastructure;
 
