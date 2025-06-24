@@ -41,7 +41,7 @@ Built using .NET 7, this project serves both as a game and as a reference archit
 ### Prerequisites
 
 - [.NET 7 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
-- (Optional) [MongoDB](https://www.mongodb.com/try/download/community) for persistence
+- [MongoDB](https://www.mongodb.com/try/download/community) for persistence
 
 ### Run the API
 
