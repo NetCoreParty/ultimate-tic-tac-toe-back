@@ -20,6 +20,16 @@ public class CellTests
     }
 
     [Fact]
+    public void Restore_ShouldRestoreCellCorrectly()
+    {
+        var cell = Cell.Restore(1, 2, PlayerFigure.O);
+
+        Assert.Equal(1, cell.RowId);
+        Assert.Equal(2, cell.ColId);
+        Assert.Equal(PlayerFigure.O, cell.Figure);
+    }
+
+    [Fact]
     public void Mark_ShouldSetFigureCorrectly()
     {
         // Arrange
