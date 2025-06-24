@@ -1,6 +1,6 @@
 ﻿using UltimateTicTacToe.Core.Domain.Entities;
 
-namespace UltimateTicTacToe.Core.Features.GameSaving.Entities.Snapshot;
+namespace UltimateTicTacToe.Core.Features.GameSave.Entities;
 
 public class GameRootSnapshotProjection
 {

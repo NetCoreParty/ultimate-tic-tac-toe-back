@@ -1,11 +1,11 @@
 ﻿using UltimateTicTacToe.Core.Domain.Aggregate;
 using UltimateTicTacToe.Core.Domain.Entities;
 using UltimateTicTacToe.Core.Domain.Events;
-using UltimateTicTacToe.Core.Features.GameSaving.Entities.Snapshot;
+using UltimateTicTacToe.Core.Features.GameSave.Entities;
 
-namespace UltimateTicTacToe.Core.Extensions;
+namespace UltimateTicTacToe.Core.Features.GameSave;
 
-public static class GameRootExtensions
+public static class GameRootMappingExtensions
 {
     public static GameRootSnapshotProjection ToSnapshot(this GameRoot game)
     {
@@ -75,25 +75,9 @@ public static class GameRootExtensions
         return cellsSnapshot;
     }
 
-    /// TODO: Rewrite this method to use the updated logic, so far we are not using it (moves mapping problem)
-    public static GameRoot ToGameRoot_DoesntWorkForNow(this GameRootSnapshotProjection snapshot, List<IDomainEvent> eventsFromStore)
+    public static GameRoot ToGameRoot(this GameRootSnapshotProjection snapshot, List<IDomainEvent> eventsFromStore)
     {
-        var gameRoot = GameRoot.CreateNew(
-            snapshot.GameId,
-            snapshot.PlayerXId,
-            snapshot.PlayerOId,
-            gameStatus: (GameStatus)snapshot.Status,
-            version: snapshot.Version,
-            isReplay: true
-        );
-
-        foreach (var miniBoard in snapshot.MiniBoards)
-        {
-            foreach (var cell in miniBoard.Cells)
-            {
-                gameRoot.Board.TryMakeMove(miniBoard.Row, miniBoard.Col, cell.Row, cell.Col, Enum.Parse<PlayerFigure>(cell.Figure));
-            }
-        }
+        var gameRoot = GameRoot.Restore(snapshot);
 
         GameRoot.Rehydrate(eventsFromStore, gameRoot);
 

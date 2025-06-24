@@ -1,4 +1,5 @@
 ﻿using UltimateTicTacToe.Core.Extensions;
+using UltimateTicTacToe.Core.Features.GameSave.Entities;
 
 namespace UltimateTicTacToe.Core.Domain.Entities;
 
@@ -17,6 +18,31 @@ public class MiniBoard
             for (int c = 0; c < 3; c++)
                 _cells[r, c] = new Cell(r, c);
 
+        Winner = winner;
+    }
+
+    public static MiniBoard Restore(MiniBoardSnapshot miniBoardSnapshot)
+    {
+        var miniBoard = new MiniBoard();
+
+        foreach (var cellSnapshot in miniBoardSnapshot.Cells)
+        {
+            var cell = Cell.Restore(cellSnapshot.Row, cellSnapshot.Col, Enum.Parse<PlayerFigure>(cellSnapshot.Figure));
+            miniBoard.SetCell(cellSnapshot.Row, cellSnapshot.Col, cell);
+        }
+
+        miniBoard.SetWinner(miniBoardSnapshot.Winner ?? PlayerFigure.None);
+
+        return miniBoard;
+    }
+
+    private void SetCell(int row, int col, Cell cell)
+    {
+        _cells[row, col] = cell;
+    }
+
+    private void SetWinner(PlayerFigure winner)
+    {
         Winner = winner;
     }
 

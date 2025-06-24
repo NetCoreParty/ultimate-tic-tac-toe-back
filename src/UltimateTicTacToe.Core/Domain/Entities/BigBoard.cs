@@ -1,4 +1,6 @@
-﻿using UltimateTicTacToe.Core.Extensions;
+﻿using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Extensions;
+using UltimateTicTacToe.Core.Features.GameSave.Entities;
 
 namespace UltimateTicTacToe.Core.Domain.Entities;
 
@@ -12,6 +14,19 @@ public class BigBoard
         for (int r = 0; r < 3; r++)
             for (int c = 0; c < 3; c++)
                 _miniBoards[r, c] = new MiniBoard();
+    }
+
+    public static BigBoard Restore(List<MiniBoardSnapshot> miniBoardSnapshots)
+    {
+        var bigBoard = new BigBoard();
+
+        foreach (var miniSnapshot in miniBoardSnapshots)
+        {
+            var restoredMiniBoard = MiniBoard.Restore(miniSnapshot);
+            bigBoard.SetMiniBoard(miniSnapshot.Row, miniSnapshot.Col, restoredMiniBoard);
+        }
+
+        return bigBoard;
     }
 
     public MiniBoard GetMiniBoard(int rowId, int colId)
@@ -46,6 +61,11 @@ public class BigBoard
                 winnersGrid[r, c] = _miniBoards[r, c].Winner;
 
         Winner = winnersGrid.CheckWinner();
+    }
+
+    private void SetMiniBoard(int row, int col, MiniBoard miniBoard)
+    {
+        _miniBoards[row, col] = miniBoard;
     }
 
     public int GetTotalMoves()

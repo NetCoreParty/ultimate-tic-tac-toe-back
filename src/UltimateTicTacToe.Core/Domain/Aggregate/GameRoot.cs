@@ -1,6 +1,7 @@
 ﻿using UltimateTicTacToe.Core.Domain.Entities;
 using UltimateTicTacToe.Core.Domain.Events;
 using UltimateTicTacToe.Core.Domain.Exceptions;
+using UltimateTicTacToe.Core.Features.GameSave.Entities;
 
 namespace UltimateTicTacToe.Core.Domain.Aggregate;
 
@@ -42,6 +43,22 @@ public class GameRoot
         }
 
         game.Apply(new GameCreatedEvent(gameId, playerXId, playerOId));
+
+        return game;
+    }
+
+    public static GameRoot Restore(GameRootSnapshotProjection snapshot)
+    {
+        var game = new GameRoot()
+        {
+            GameId = snapshot.GameId,
+            PlayerXId = snapshot.PlayerXId,
+            PlayerOId = snapshot.PlayerOId,
+            Status = (GameStatus)snapshot.Status,
+            WinnerId = snapshot.WinnerId,
+            Version = snapshot.Version,
+            Board = BigBoard.Restore(snapshot.MiniBoards)
+        };
 
         return game;
     }

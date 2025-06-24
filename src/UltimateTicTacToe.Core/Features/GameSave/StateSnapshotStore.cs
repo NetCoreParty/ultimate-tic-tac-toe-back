@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using UltimateTicTacToe.Core.Domain.Aggregate;
 using UltimateTicTacToe.Core.Domain.Events;
-using UltimateTicTacToe.Core.Extensions;
-using UltimateTicTacToe.Core.Features.GameSaving.Entities.Snapshot;
+using UltimateTicTacToe.Core.Features.GameSave;
+using UltimateTicTacToe.Core.Features.GameSave.Entities;
 using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Core.Features.GameSaving;
@@ -72,13 +72,11 @@ public class StateSnapshotStore : IStateSnapshotStore
     /// <returns></returns>
     public async Task<GameRoot?> TryLoadGameAsync(Guid gameId, IEventStore eventStore)
     {
-        // TODO: This logic cant be used, because we dont know exactly the order of moves to recreate a snapshot from a certain point, think about it later
-
         if (_inMemorySnapshots.TryGetValue(gameId, out var snapshot))
         {
             var snapshotProjection = JsonSerializer.Deserialize<GameRootSnapshotProjection>(snapshot.StateJson)!;
             var remainingEvents = await eventStore.GetEventsAfterVersionAsync(gameId, snapshot.Version);
-            var gameRoot = snapshotProjection.ToGameRoot_DoesntWorkForNow(remainingEvents);
+            var gameRoot = snapshotProjection.ToGameRoot(remainingEvents);
 
             return gameRoot;
         }

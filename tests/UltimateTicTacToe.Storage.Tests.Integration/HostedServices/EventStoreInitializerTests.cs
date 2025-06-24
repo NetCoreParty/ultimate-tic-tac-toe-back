@@ -1,36 +1,51 @@
-﻿using UltimateTicTacToe.Storage.HostedServices;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Moq;
+using UltimateTicTacToe.Core.Configuration;
+using UltimateTicTacToe.Storage.HostedServices;
 using UltimateTicTacToe.Storage.Tests.Integration.Infrastructure;
 
 namespace UltimateTicTacToe.Storage.Tests.Integration.HostedServices;
 
 [Collection("MongoEventStoreTests")]
-public class EventStoreInitializerTests : IAsyncLifetime
+public class EventStoreInitializerTests : IClassFixture<MongoDbFixture>, IAsyncLifetime
 {
-    private readonly EventStoreInitializer _storeInitializer;
+    private readonly EventStoreInitializer _sut;
 
-    public EventStoreInitializerTests(
-        EventStoreInitializer storeInitializer
-        )
+    private readonly IMongoDatabase _dbFixture;
+    private readonly Mock<ILogger<EventStoreInitializer>> _loggerMock = new Mock<ILogger<EventStoreInitializer>>();
+
+    public EventStoreInitializerTests(MongoDbFixture fixture)
     {
-        _storeInitializer = storeInitializer;
+        var settings = Options.Create(new EventStoreSettings
+        {
+            ConnectionString = fixture.Runner.ConnectionString,
+            DatabaseName = fixture.DatabaseName,
+            EventsCollectionName = fixture.CollectionName
+        });
+
+        _dbFixture = fixture.Database;
+
+        _sut = new EventStoreInitializer(_dbFixture, settings, _loggerMock.Object);
     }
 
     public async Task InitializeAsync()
     {
-        await _storeInitializer.StartAsync(default);
+        await _sut.StartAsync(default);
     }
 
     public async Task DisposeAsync()
     {
-        await _storeInitializer.ClearIndexesAsync();
-        await _storeInitializer.ClearDatabaseAsync();
+        await _sut.ClearIndexesAsync();
+        await _sut.ClearDatabaseAsync();
     }
 
     [Fact]
     public async Task Indexes_ShouldExist_AfterInitFinished()
     {
         // Arrange & Act
-        var appliedIndexes = await _storeInitializer.GetAppliedIndexesInfo();
+        var appliedIndexes = await _sut.GetAppliedIndexesInfo();
 
         // Assert
         Assert.Equal(4, appliedIndexes.Count);

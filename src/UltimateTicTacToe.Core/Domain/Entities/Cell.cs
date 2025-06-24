@@ -12,6 +12,9 @@ public class Cell
         ColId = colId;
     }
 
+    public static Cell Restore(int rowId, int colId, PlayerFigure figure) 
+        => new Cell(rowId, colId, figure);
+
     private Cell(int rowId, int colId, PlayerFigure figure)
     {
         RowId = rowId;

@@ -14,11 +14,8 @@ public class EventStoreInitializer : IHostedService
     private readonly IMongoCollection<StoredEvent> _collection;
     private readonly ILogger<EventStoreInitializer> _logger;
 
-    public EventStoreInitializer(IOptions<EventStoreSettings> settings, ILogger<EventStoreInitializer> logger)
+    public EventStoreInitializer(IMongoDatabase database, IOptions<EventStoreSettings> settings, ILogger<EventStoreInitializer> logger)
     {
-        var client = new MongoClient(settings.Value.ConnectionString);
-        var database = client.GetDatabase(settings.Value.DatabaseName);
-        
         _collection = database.GetCollection<StoredEvent>(settings.Value.EventsCollectionName);
         _logger = logger;
     }
