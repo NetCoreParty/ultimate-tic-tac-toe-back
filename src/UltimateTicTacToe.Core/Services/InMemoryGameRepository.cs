@@ -71,7 +71,7 @@ public class InMemoryGameRepository : IGameRepository
 
             if (!_games.TryAdd(gameRoot.GameId, gameRoot))
             {
-                return Result<StartGameResponse>.Failure(400, $"Game with ID {gameRoot.GameId} already exists.");
+                return Result<StartGameResponse>.Failure(400, $"Game with ID {gameRoot.GameId} already exists. Please try again.");
             }
 
             return Result<StartGameResponse>.Success(
@@ -132,7 +132,7 @@ public class InMemoryGameRepository : IGameRepository
         catch (Exception ex)
         {
             _logger.LogError($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Exception was caught: {ex.GetType().Name}: {ex.Message}");
-            return Result<bool>.Failure(400, $"Error while making move: {ex.Message}");
+            return Result<bool>.Failure(500, $"Error while making move: {ex.Message}");
         }
         finally
         {

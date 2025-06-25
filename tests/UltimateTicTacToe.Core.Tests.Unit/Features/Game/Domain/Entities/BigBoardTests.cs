@@ -1,4 +1,5 @@
 ﻿using UltimateTicTacToe.Core.Domain.Entities;
+using UltimateTicTacToe.Core.Features.GameSave.Entities;
 
 namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Entities;
 
@@ -20,6 +21,44 @@ public class BigBoardTests
 
         Assert.Equal(PlayerFigure.None, bigBoard.Winner);
     }
+
+    [Fact]
+    public void BigBoard_ShouldRestoreBigBoardCorrectly()
+    {
+        var miniBoardSnapshot = new MiniBoardSnapshot
+        {
+            Row = 0,
+            Col = 0,
+            Winner = PlayerFigure.O,
+            Cells = new List<CellSnapshot>
+            {
+                // Diagonal Win (O)
+                new CellSnapshot { Row = 0, Col = 1, Figure = PlayerFigure.X.ToString() },
+                new CellSnapshot { Row = 0, Col = 0, Figure = PlayerFigure.O.ToString() },
+                new CellSnapshot { Row = 2, Col = 1, Figure = PlayerFigure.X.ToString() },
+                new CellSnapshot { Row = 1, Col = 1, Figure = PlayerFigure.O.ToString() },
+                new CellSnapshot { Row = 0, Col = 2, Figure = PlayerFigure.X.ToString() },
+                new CellSnapshot { Row = 2, Col = 2, Figure = PlayerFigure.O.ToString() }
+            }
+        };
+
+        var bigBoard = BigBoard.Restore(new List<MiniBoardSnapshot> { miniBoardSnapshot });
+
+        var miniBoard = bigBoard.GetMiniBoard(0, 0);
+
+        Assert.True(miniBoard.IsWon);
+        Assert.False(miniBoard.IsEmpty);
+        Assert.Equal(PlayerFigure.O, miniBoard.Winner);
+
+        Assert.Equal(PlayerFigure.O, miniBoard.GetCell(0, 0).Figure);
+        Assert.Equal(PlayerFigure.O, miniBoard.GetCell(1, 1).Figure);
+        Assert.Equal(PlayerFigure.O, miniBoard.GetCell(2, 2).Figure);
+
+        Assert.Equal(PlayerFigure.X, miniBoard.GetCell(0, 1).Figure);
+        Assert.Equal(PlayerFigure.X, miniBoard.GetCell(2, 1).Figure);
+        Assert.Equal(PlayerFigure.X, miniBoard.GetCell(0, 2).Figure);
+    }
+
 
     [Fact]
     public void TryMakeMove_Should_Succeed_On_Empty_Cell()

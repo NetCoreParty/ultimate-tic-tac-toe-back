@@ -1,4 +1,5 @@
 ﻿using UltimateTicTacToe.Core.Domain.Entities;
+using UltimateTicTacToe.Core.Features.GameSave.Entities;
 
 namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Entities;
 
@@ -16,6 +17,28 @@ public class MiniBoardTests
 
         Assert.False(board.IsFull);
         Assert.Equal(PlayerFigure.None, board.Winner);
+    }
+
+    [Fact]
+    public void Restore_ShouldRestoreMiniBoardCorrectly()
+    {
+        var snapshot = new MiniBoardSnapshot
+        {
+            Row = 0,
+            Col = 0,
+            Winner = PlayerFigure.X,
+            Cells = new List<CellSnapshot>
+            {
+                new CellSnapshot { Row = 0, Col = 0, Figure = PlayerFigure.X.ToString() },
+                new CellSnapshot { Row = 1, Col = 1, Figure = PlayerFigure.O.ToString() }
+            }
+        };
+
+        var board = MiniBoard.Restore(snapshot);
+
+        Assert.Equal(PlayerFigure.X, board.Winner);
+        Assert.Equal(PlayerFigure.X, board.GetCell(0, 0).Figure);
+        Assert.Equal(PlayerFigure.O, board.GetCell(1, 1).Figure);
     }
 
     [Fact]

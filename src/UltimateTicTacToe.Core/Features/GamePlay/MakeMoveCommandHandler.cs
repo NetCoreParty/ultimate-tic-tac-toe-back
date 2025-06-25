@@ -1,8 +1,7 @@
 ﻿using MediatR;
 using UltimateTicTacToe.Core.Services;
-using Microsoft.AspNetCore.SignalR;
-using UltimateTicTacToe.Core.Features.RealTimeMoveUpdates;
 using UltimateTicTacToe.Core.Projections;
+using UltimateTicTacToe.Core.Features.RealTimeNotification;
 
 namespace UltimateTicTacToe.Core.Features.GamePlay;
 
@@ -11,12 +10,12 @@ public record MakeMoveCommand(PlayerMoveRequest makeMoveRequest) : IRequest<Resu
 public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<bool>>
 {
     private readonly IGameRepository _gameRepo;
-    private readonly IHubContext<MoveUpdatesHub> _hubContext;
+    private readonly IMoveUpdatesNotificationHub _realTimeNotifier;
 
-    public MakeMoveCommandHandler(IGameRepository gameRepo, IHubContext<MoveUpdatesHub> hubContext)
+    public MakeMoveCommandHandler(IGameRepository gameRepo, IMoveUpdatesNotificationHub realTimeNotifier)
     {
         _gameRepo = gameRepo;
-        _hubContext = hubContext;
+        _realTimeNotifier = realTimeNotifier;
     }
 
     public async Task<Result<bool>> Handle(MakeMoveCommand request, CancellationToken ct)
@@ -26,15 +25,11 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<bo
 
         if (!result.IsSuccess)
         {
-            await _hubContext.Clients.Group(groupName)
-                .SendAsync("MoveRejected", result.Error, ct);
-
+            await _realTimeNotifier.NotifyMoveRejectedAsync(groupName, result.Error, ct);
             return result;
         }
 
-        await _hubContext.Clients.Group(groupName)
-            .SendAsync("MoveApplied", result.Value, ct);
-
+        await _realTimeNotifier.NotifyMoveAppliedAsync(groupName, result.Value, ct);
         return result;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace UltimateTicTacToe.Core.Features.RealTimeMoveUpdates;
+namespace UltimateTicTacToe.API.Hubs;
 
 /// <summary>
 /// Contains only methods that should be called from a client (Vue3 in our case)
