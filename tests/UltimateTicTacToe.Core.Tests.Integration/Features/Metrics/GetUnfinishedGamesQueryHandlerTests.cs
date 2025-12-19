@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-
-namespace UltimateTicTacToe.Core.Tests.Integration.Features.Metrics;
+﻿namespace UltimateTicTacToe.Core.Tests.Integration.Features.Metrics;
 
 public class GetUnfinishedGamesQueryHandlerTests
 {

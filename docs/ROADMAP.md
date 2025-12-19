@@ -7,7 +7,7 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 ## ✅ Completed
 
 - [x] Core domain model (`GameRoot`, `Board`, `Cell`)
-- [x] In-memory `IGameRepository` with snapshot threshold
+- [x] In-memory `IGameRepository` (basic start game + make move)
 - [x] Semaphore-protected concurrent game management
 - [x] `GameplayController` with HTTP endpoints
 - [x] Result pattern for API responses
@@ -15,12 +15,13 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] Configuration-driven gameplay settings via JSON
 - [x] Logging and diagnostics for moves and game lifecycle
 - [x] Integration with MongoDB for event store
-- [x] Snapshotting mechanism and event persistence
-- [x] Event replay to reconstruct game state
+- [x] MongoDB event store + integration tests (storage layer)
 - [x] 1. HTTP Endpoint for Sending Moves to Server - Use this to accept new moves from the frontend
 - [x] 3. WebSocket Hub for keeping up with Real-Time server's updates
-- [x] Integration tests for persistence and controller
-- [x] Property-based testing for game logic
+- [ ] Snapshotting mechanism wired end-to-end (repo uses snapshots + clears uncommitted changes)
+- [ ] Event persistence + replay wired end-to-end (repo appends events, rehydrates on demand)
+- [ ] Integration tests for controller/API surface
+- [ ] Property-based testing for game logic
 
 ---
 
@@ -32,6 +33,76 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 
 - [ ] 2. HTTP Endpoint for Initial Move History (With Pagination) - Great for loading full or partial history when the game starts or when reconnecting
 ---
+
+## 💡 Suggested Next Steps (Agent Review)
+
+These are my recommendations based on the current repo state (API/Core/Storage/tests) and what’s most likely to unblock the next features.
+
+### P0 (Next sprint / unblockers)
+
+- [ ] Wire **event persistence** into `IGameRepository` (append `GameRoot.UncommittedChanges` to `IEventStore`)
+  - DoD:
+    - After a successful move/start, events are appended via `IEventStore.AppendEventsAsync(...)`
+    - `GameRoot.ClearUncomittedEvents(...)` is called after persistence
+    - Basic optimistic/concurrency safety story is defined (even if “single node lock” for now)
+  - Touchpoints: `src/UltimateTicTacToe.Core/Services/InMemoryGameRepository.cs`, `src/UltimateTicTacToe.Core/Domain/Aggregate/GameRoot.cs`, `src/UltimateTicTacToe.Storage/Services/MongoEventStore.cs`
+
+- [ ] Implement **move history endpoint** end-to-end (`GET /api/game-management/{gameId}/moves-history?skip&take`)
+  - DoD:
+    - `IGameRepository.GetMovesFilteredByAsync(...)` implemented
+    - Handler returns paginated moves based on stored/replayed events
+    - Returns deterministic ordering (by event version)
+  - Touchpoints: `src/UltimateTicTacToe.Core/Features/GameManagement/GetMovesHistoryQueryHandler.cs`, `src/UltimateTicTacToe.Core/Services/InMemoryGameRepository.cs`, `src/UltimateTicTacToe.Core/Projections/ExternalProjections.cs`
+
+- [ ] Finish **SignalR group wiring** so clients actually receive game-scoped updates
+  - DoD:
+    - Client can join a group by `gameId` (string)
+    - Server broadcasts `MoveApplied`/`MoveRejected` to that group
+  - Touchpoints: `src/UltimateTicTacToe.Api/Hubs/MoveUpdatesHub.cs`, `src/UltimateTicTacToe.Api/RealTimeNotification/MoveUpdatesNotificationHub.cs`
+
+### P1 (Quality + correctness)
+
+- [ ] Add controller-level integration tests (real `Program` + routing + DI)
+  - DoD:
+    - Tests exercise `/api/game/start` and `/api/game/move` end-to-end
+    - Uses a test event store (in-memory or Mongo2Go) and asserts persisted events
+  - Touchpoints: `tests/UltimateTicTacToe.API.Tests.Unit` (add new integration test project or extend), `src/UltimateTicTacToe.Api/Program.cs`
+
+- [ ] Snapshotting: wire `IStateSnapshotStore` into repository and define snapshot triggers
+  - DoD:
+    - Snapshot created on terminal events / thresholds
+    - Load path prefers snapshot + delta events
+  - Touchpoints: `src/UltimateTicTacToe.Core/Features/GameSave/StateSnapshotStore.cs`, `src/UltimateTicTacToe.Core/Services/InMemoryGameRepository.cs`
+
+- [ ] Improve API contract for moves (return richer payload)
+  - DoD:
+    - Return current game status + next expected player + last move id/version
+    - Use the same payload for HTTP and SignalR events for consistency
+
+### P2 (Observability / ops)
+
+- [ ] Add health checks + basic operational endpoints
+  - DoD:
+    - Health check verifies Mongo connectivity (when enabled)
+    - Metrics include active games, per-endpoint counts/latency (minimal)
+
+- [ ] Trace correlation middleware
+  - DoD:
+    - Adds/propagates correlation id across logs and responses
+
+## ⚠️ Tech Debt / Risks (Agent Notes)
+
+- [ ] `SemaphoreSlim` timeout handling in `InMemoryGameRepository`
+  - Risk: `WaitAsync(timeout, ct)` returns `false`, but current code always calls `Release()` in `finally`, which can lead to `SemaphoreFullException` and incorrect concurrency behavior.
+  - Fix direction: capture the `WaitAsync(...)` result; only `Release()` if acquired, and return 503/429 on lock contention.
+
+- [ ] MongoDB event serialization registration is incomplete
+  - Risk: `AddGlobalMongoSerialization()` currently registers `DomainEventBase` and explicitly maps `CellMarkedEvent` only; other domain events may fail to deserialize or lose type fidelity.
+  - Fix direction: register class maps for all domain events (e.g., `GameCreatedEvent`, `MiniBoardWonEvent`, etc.) or use a safer polymorphic serialization approach.
+
+- [ ] Event replay / rehydration behavior is partially implemented
+  - Risk: `GameRoot.PlayMove(..., isEventReplay:true)` returns early, and replay currently relies on `When(CellMarkedEvent)` mutating the board. This can diverge as more event types are introduced (mini-board wins, full-game wins, draws).
+  - Fix direction: define a consistent “apply” path for each event type during replay, so rehydration is correct and future-proof.
 
 ## 📝 Planned Features
 
@@ -89,6 +160,9 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 | `v0.1`  | 06.2025     | MVP with local memory & basic HTTP API	|
 | `v0.2`  | 07.2025     | Persistence layer, replay, and monitoring |
 | `v1.0`  | 10.2025     | Public release with UI and multiplayer	|
+
+Milestone sequencing suggestion:
+- `v0.2`: persistence (append + replay) → moves history endpoint → reconnect flow (snapshot optional but recommended)
 
 ---
 
