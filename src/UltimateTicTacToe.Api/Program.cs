@@ -9,6 +9,7 @@ using UltimateTicTacToe.Storage.Extensions;
 using UltimateTicTacToe.API.Hubs;
 using UltimateTicTacToe.Core.Features.RealTimeNotification;
 using UltimateTicTacToe.API.RealTimeNotification;
+using Scalar.AspNetCore;
 
 namespace UltimateTicTacToe.API;
 
@@ -41,7 +42,7 @@ public class Program
         #endregion
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddOpenApi();
 
         builder.Services.AddControllers();
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MakeMoveCommand).Assembly));
@@ -74,8 +75,8 @@ public class Program
 
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            app.MapOpenApi();
+            app.MapScalarApiReference();
             app.UseDeveloperExceptionPage();
         }
 
