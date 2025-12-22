@@ -13,6 +13,9 @@ using Scalar.AspNetCore;
 using UltimateTicTacToe.Core.Features.Rooms;
 using UltimateTicTacToe.API.HostedServices;
 using UltimateTicTacToe.Core.Features.GameSaving;
+using UltimateTicTacToe.API.Health;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using UltimateTicTacToe.API.Middleware;
 
 namespace UltimateTicTacToe.API;
 
@@ -90,6 +93,20 @@ public class Program
 
         #endregion
 
+        #region Health Checks
+
+        var mongoHealthEnabled = builder.Configuration.GetValue("HealthChecks:MongoEnabled", true);
+
+        var hc = builder.Services.AddHealthChecks()
+            .AddCheck("live", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
+
+        if (mongoHealthEnabled)
+        {
+            hc.AddCheck<MongoPingHealthCheck>("mongo");
+        }
+
+        #endregion
+
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -99,6 +116,7 @@ public class Program
             app.UseDeveloperExceptionPage();
         }
 
+        app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseCors(corsConfig.PolicyName);
         app.UseHttpsRedirection();
         app.UseRouting();
@@ -109,6 +127,10 @@ public class Program
 
         app.MapHub<RoomsHub>("/rooms-hub")
             .RequireCors(corsConfig.PolicyName);
+
+        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = r => r.Name == "live" });
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = r => r.Name != "live" });
+        app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => true });
 
         app.MapControllers();
 

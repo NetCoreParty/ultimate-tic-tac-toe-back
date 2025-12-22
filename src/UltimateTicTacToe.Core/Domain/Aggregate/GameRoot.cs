@@ -192,10 +192,14 @@ public class GameRoot
 
             // These events are informational for the aggregate today (board already derives mini-board state from CellMarkedEvent).
             // We still keep cases here to make replay forward-compatible if board logic changes later.
-            case MiniBoardWonEvent:
+            case MiniBoardWonEvent e:
+                if (isEventReplay)
+                    Board.ApplyMiniBoardWonForReplay(e.BoardRowId, e.BoardColId, e.PlayerFigure);
                 break;
 
-            case MiniBoardDrawnEvent:
+            case MiniBoardDrawnEvent e:
+                if (isEventReplay)
+                    Board.ApplyMiniBoardDrawnForReplay(e.BoardRowId, e.BoardColId);
                 break;
         }
     }

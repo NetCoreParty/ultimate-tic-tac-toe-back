@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Domain.Exceptions;
 using UltimateTicTacToe.Core.Features.GameSaving;
 using UltimateTicTacToe.Core.Projections;
 
@@ -203,6 +204,26 @@ public class InMemoryGameRepository : IGameRepository
             }
 
             return Result<bool>.Failure(404, $"Game with ID {move.GameId} not found.");
+        }
+        catch (NotYourTurnException ex)
+        {
+            _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Not your turn: {ex.Message}");
+            return Result<bool>.Failure(403, ex.Message);
+        }
+        catch (InvalidMoveException ex)
+        {
+            _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Invalid move: {ex.Message}");
+            return Result<bool>.Failure(400, ex.Message);
+        }
+        catch (MiniBoardNotPlayableException ex)
+        {
+            _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Mini board not playable: {ex.Message}");
+            return Result<bool>.Failure(409, ex.Message);
+        }
+        catch (GameNotInProgressException ex)
+        {
+            _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Game not in progress: {ex.Message}");
+            return Result<bool>.Failure(409, ex.Message);
         }
         catch (Exception ex)
         {

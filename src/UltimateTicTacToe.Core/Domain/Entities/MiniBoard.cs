@@ -46,6 +46,14 @@ public class MiniBoard
         Winner = winner;
     }
 
+    /// <summary>
+    /// Replay hook: make the event stream authoritative if needed.
+    /// </summary>
+    public void ApplyWinnerForReplay(PlayerFigure winner)
+    {
+        Winner = winner;
+    }
+
     public bool TryMakeMove(int rowId, int colId, PlayerFigure figure)
     {
         if (Winner != PlayerFigure.None || _cells[rowId, colId].Figure != PlayerFigure.None)

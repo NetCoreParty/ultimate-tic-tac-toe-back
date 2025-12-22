@@ -63,6 +63,24 @@ public class BigBoard
         Winner = winnersGrid.CheckWinner();
     }
 
+    /// <summary>
+    /// Replay hook: apply mini-board winner deterministically from events.
+    /// </summary>
+    public void ApplyMiniBoardWonForReplay(int boardRowId, int boardColId, PlayerFigure winner)
+    {
+        _miniBoards[boardRowId, boardColId].ApplyWinnerForReplay(winner);
+        CheckUltimateWin();
+    }
+
+    /// <summary>
+    /// Replay hook: no explicit state today (draw derives from full cells), but we recalculate ultimate winner for safety.
+    /// </summary>
+    public void ApplyMiniBoardDrawnForReplay(int boardRowId, int boardColId)
+    {
+        _ = boardRowId; _ = boardColId;
+        CheckUltimateWin();
+    }
+
     private void SetMiniBoard(int row, int col, MiniBoard miniBoard)
     {
         _miniBoards[row, col] = miniBoard;
