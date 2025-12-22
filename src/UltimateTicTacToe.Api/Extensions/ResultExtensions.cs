@@ -22,7 +22,7 @@ public static class ResultExtensions
             403 => new ObjectResult(result) { StatusCode = 403 },
             404 => new NotFoundObjectResult(result),
             500 => new ObjectResult(new { error = "Internal server error. Server failed during processing this request. See logs to find out more..." }) { StatusCode = 500 },
-            _ => new ObjectResult(result)
+            _ => new ObjectResult(result) { StatusCode = result.Code }
         };
     }
 }

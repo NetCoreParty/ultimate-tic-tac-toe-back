@@ -22,9 +22,9 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] Local dev Docker dependencies for Mongo (Docker Compose + Rider-friendly scripts)
 - [x] 1. HTTP Endpoint for Sending Moves to Server - Use this to accept new moves from the frontend
 - [x] 3. WebSocket Hub for keeping up with Real-Time server's updates
-- [ ] Snapshotting mechanism wired end-to-end (repo uses snapshots + clears uncommitted changes)
+- [x] Snapshotting mechanism wired end-to-end (repo uses snapshots + clears uncommitted changes)
 - [x] Event persistence + replay wired end-to-end (repo appends events, rehydrates on demand)
-- [ ] Integration tests for controller/API surface
+- [x] Integration tests for controller/API surface (basic API smoke tests)
 - [ ] Property-based testing for game logic
 - [x] Rooms + matchmaking (Regular/Private) + TTL + metrics + expiry notifications
 - [x] Capacity backpressure (429) for new admissions near `MaxActiveGames` + documented in README
@@ -68,13 +68,13 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 
 ### P1 (Quality + correctness)
 
-- [ ] Add controller-level integration tests (real `Program` + routing + DI)
+- [x] Add controller-level integration tests (real `Program` + routing + DI)
   - DoD:
     - Tests exercise `/api/game/start` and `/api/game/move` end-to-end
     - Uses a test event store (in-memory or Mongo2Go) and asserts persisted events
   - Touchpoints: `tests/UltimateTicTacToe.API.Tests.Unit` (add new integration test project or extend), `src/UltimateTicTacToe.Api/Program.cs`
 
-- [ ] Snapshotting: wire `IStateSnapshotStore` into repository and define snapshot triggers
+- [x] Snapshotting: wire `IStateSnapshotStore` into repository and define snapshot triggers
   - DoD:
     - Snapshot created on terminal events / thresholds
     - Load path prefers snapshot + delta events

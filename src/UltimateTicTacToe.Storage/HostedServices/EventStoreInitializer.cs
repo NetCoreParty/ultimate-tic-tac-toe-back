@@ -12,10 +12,12 @@ namespace UltimateTicTacToe.Storage.HostedServices;
 public class EventStoreInitializer : IHostedService
 {
     private readonly IMongoCollection<StoredEvent> _collection;
+    private readonly IMongoDatabase _database;
     private readonly ILogger<EventStoreInitializer> _logger;
 
     public EventStoreInitializer(IMongoDatabase database, IOptions<EventStoreSettings> settings, ILogger<EventStoreInitializer> logger)
     {
+        _database = database;
         _collection = database.GetCollection<StoredEvent>(settings.Value.EventsCollectionName);
         _logger = logger;
     }
@@ -24,6 +26,7 @@ public class EventStoreInitializer : IHostedService
     {
         _logger.LogInformation("Initializing MongoDB Event Store...");
         await EnsureIndexesAsync(cancellationToken);
+        await EnsureSnapshotIndexesAsync(cancellationToken);
         _logger.LogInformation("MongoDB Event Store initialized successfully.");
     }
 
@@ -98,6 +101,29 @@ public class EventStoreInitializer : IHostedService
 
         // Its safe to call this multiple times, Even if those indexes already exist
         await _collection.Indexes.CreateManyAsync(indexes, ct);
+    }
+
+    private async Task EnsureSnapshotIndexesAsync(CancellationToken ct)
+    {
+        var snapshots = _database.GetCollection<Services.MongoStateSnapshotStore.SnapshotDoc>(Services.MongoStateSnapshotStore.CollectionName);
+
+        var indexes = new List<CreateIndexModel<Services.MongoStateSnapshotStore.SnapshotDoc>>
+        {
+            new CreateIndexModel<Services.MongoStateSnapshotStore.SnapshotDoc>(
+                Builders<Services.MongoStateSnapshotStore.SnapshotDoc>.IndexKeys
+                    .Ascending(x => x.GameId)
+                    .Descending(x => x.Version),
+                new CreateIndexOptions { Name = "idx_game_id__version_desc" }
+            ),
+            new CreateIndexModel<Services.MongoStateSnapshotStore.SnapshotDoc>(
+                Builders<Services.MongoStateSnapshotStore.SnapshotDoc>.IndexKeys
+                    .Ascending(x => x.GameId)
+                    .Ascending(x => x.Version),
+                new CreateIndexOptions { Name = "uidx_game_id__version", Unique = true }
+            )
+        };
+
+        await snapshots.Indexes.CreateManyAsync(indexes, ct);
     }
 
     public async Task ClearDatabaseAsync()

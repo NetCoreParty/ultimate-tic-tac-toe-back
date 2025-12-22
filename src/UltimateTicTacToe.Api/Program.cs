@@ -25,7 +25,7 @@ public class Program
         #region Games Repository
 
         builder.Services.Configure<GameplaySettings>(builder.Configuration.GetSection("GameplaySettings"));
-        builder.Services.AddSingleton<IStateSnapshotStore, StateSnapshotStore>();
+        builder.Services.AddSingleton<IStateSnapshotStore, MongoStateSnapshotStore>();
         builder.Services.AddSingleton<IGameRepository, InMemoryGameRepository>();
 
         #endregion
