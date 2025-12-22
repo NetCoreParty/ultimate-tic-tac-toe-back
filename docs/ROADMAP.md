@@ -16,12 +16,18 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] Logging and diagnostics for moves and game lifecycle
 - [x] Integration with MongoDB for event store
 - [x] MongoDB event store + integration tests (storage layer)
+- [x] Migrated solution + tests to **.NET 10** (`net10.0` only)
+- [x] API docs via **OpenAPI + Scalar** (development only)
+- [x] Coverage report generation (`coverlet` + `reportgenerator`) + gitignore for artifacts
+- [x] Local dev Docker dependencies for Mongo (Docker Compose + Rider-friendly scripts)
 - [x] 1. HTTP Endpoint for Sending Moves to Server - Use this to accept new moves from the frontend
 - [x] 3. WebSocket Hub for keeping up with Real-Time server's updates
 - [ ] Snapshotting mechanism wired end-to-end (repo uses snapshots + clears uncommitted changes)
 - [x] Event persistence + replay wired end-to-end (repo appends events, rehydrates on demand)
 - [ ] Integration tests for controller/API surface
 - [ ] Property-based testing for game logic
+- [x] Rooms + matchmaking (Regular/Private) + TTL + metrics + expiry notifications
+- [x] Capacity backpressure (429) for new admissions near `MaxActiveGames` + documented in README
 
 ---
 
@@ -93,16 +99,18 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 ## ⚠️ Tech Debt / Risks (Agent Notes)
 
 - [x] `SemaphoreSlim` timeout handling in `InMemoryGameRepository`
-  - Risk: `WaitAsync(timeout, ct)` returns `false`, but current code always calls `Release()` in `finally`, which can lead to `SemaphoreFullException` and incorrect concurrency behavior.
-  - Fix direction: capture the `WaitAsync(...)` result; only `Release()` if acquired, and return 503/429 on lock contention.
+  - Note: Ensure `Release()` only happens when `WaitAsync(...)` acquired the semaphore.
 
 - [x] MongoDB event serialization registration is incomplete
-  - Risk: `AddGlobalMongoSerialization()` currently registers `DomainEventBase` and explicitly maps `CellMarkedEvent` only; other domain events may fail to deserialize or lose type fidelity.
-  - Fix direction: register class maps for all domain events (e.g., `GameCreatedEvent`, `MiniBoardWonEvent`, etc.) or use a safer polymorphic serialization approach.
+  - Note: All domain event types should be registered for polymorphic (de)serialization; keep an integration test to guard this.
 
 - [ ] Event replay / rehydration behavior is partially implemented
   - Risk: `GameRoot.PlayMove(..., isEventReplay:true)` returns early, and replay currently relies on `When(CellMarkedEvent)` mutating the board. This can diverge as more event types are introduced (mini-board wins, full-game wins, draws).
   - Fix direction: define a consistent “apply” path for each event type during replay, so rehydration is correct and future-proof.
+
+- [ ] Rooms TTL is eventual-consistent (Mongo TTL)
+  - Risk: TTL deletion timing is not exact; client UX can be confusing if a room “hangs” until TTL cleans up.
+  - Mitigation: keep the expiry sweeper (configurable interval + batch) and treat notifications as best-effort.
 
 ## 📝 Planned Features
 
@@ -120,9 +128,10 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 
 ### 🌐 API & Monitoring
 
-- [ ] RESTful API documentation (Swagger/OpenAPI)
-- [ ] Health check & metrics endpoint (GamesNow, memory usage)
-- [ ] Rate limiting / throttling
+- [x] RESTful API documentation (OpenAPI + Scalar in Development)
+- [x] Metrics endpoints (games now + rooms)
+- [ ] Health checks (including Mongo connectivity)
+- [ ] Rate limiting / throttling (beyond current backpressure)
 
 ### 🎮 Frontend / UI
 
@@ -140,6 +149,8 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 
 ## 🧪 Testing
 
+- [x] Core integration test project: tests are discovered and runnable
+- [x] Storage integration tests (Mongo event store)
 - [ ] Load testing for high concurrency
 
 ---

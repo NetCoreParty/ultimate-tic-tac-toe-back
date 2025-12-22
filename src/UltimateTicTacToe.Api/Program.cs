@@ -31,10 +31,12 @@ public class Program
         #region Rooms / Matchmaking
 
         builder.Services.Configure<RoomSettings>(builder.Configuration.GetSection("RoomSettings"));
+        builder.Services.Configure<RoomsSweepSettings>(builder.Configuration.GetSection("RoomsSweepSettings"));
         builder.Services.AddSingleton<IRoomStore, MongoRoomStore>();
         builder.Services.AddSingleton<IMatchmakingTicketStore, MongoMatchmakingTicketStore>();
         builder.Services.AddSingleton<IRoomMetricsStore, MongoRoomMetricsStore>();
         builder.Services.AddSingleton<IMatchmakingService, MatchmakingService>();
+        builder.Services.AddSingleton<RoomsExpirySweeper>();
         builder.Services.AddTransient<IRoomsNotifier, RoomsNotificationHub>();
         builder.Services.AddHostedService<RoomsStoreInitializer>();
         builder.Services.AddHostedService<RoomsExpiryWorker>();

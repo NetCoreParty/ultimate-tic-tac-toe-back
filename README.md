@@ -1,7 +1,7 @@
 ﻿# 🧠 Ultimate Tic Tac Toe
 
 A domain-driven, event-sourced implementation of Ultimate Tic Tac Toe with a clean separation of concerns between API, application, and domain layers.
-Built using .NET 7, this project serves both as a game and as a reference architecture for modern DDD/CQRS patterns.
+Built using .NET 10, this project serves both as a game and as a reference architecture for modern DDD/CQRS patterns.
 
 ---
 
@@ -16,7 +16,7 @@ Built using .NET 7, this project serves both as a game and as a reference archit
 
 ## 🧱 Tech Stack
 
-- **.NET 7**
+- **.NET 10**
 - **ASP.NET Core Web API**
 - **xUnit** for testing
 - **MongoDB** (planned) for Event Store
@@ -56,20 +56,33 @@ Built using .NET 7, this project serves both as a game and as a reference archit
     (This is implemented for game start now; the same rule will be applied to rooms queue + private create/join.)
   - Dev defaults: `MaxActiveGames=140`, `BackpressureThresholdPercent=90` ⇒ threshold = **126**.
   - Config: `src/UltimateTicTacToe.Api/appsettings.Development.json`
+
+- **Rooms + matchmaking (pre-game)**:
+  - Regular rooms: users join a queue; server pairs them; when matched, a game is created and the room is removed.
+  - Private rooms: creator gets a `JoinCode`; second player joins via join code; then a game is created and the room is removed.
+  - TTL + expiry notifications:
+    - Mongo TTL deletes expired docs eventually; app also runs a sweep to emit best-effort events to clients.
+    - SignalR hub: `/rooms-hub`
+    - Events: `QueueJoined`, `MatchFound`, `PrivateRoomCreated`, `QueueExpired`, `RoomExpired`
+  - Config:
+    - `RoomSettings` (caps + TTL)
+    - `RoomsSweepSettings` (expiry sweep interval + batch size)
 ---
 
 ## 🔧 Getting Started
 
 ### Prerequisites
 
-- [.NET 7 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 - [MongoDB](https://www.mongodb.com/try/download/community) for persistence
 
 ### Run the API
 
 ```bash
-dotnet run --project GameApi
+dotnet run --project src/UltimateTicTacToe.Api --environment Development --urls http://localhost:8080
 ```
+
+Open Scalar: `http://localhost:8080/scalar/v1`
 
 ### HTTP Endpoints
 
