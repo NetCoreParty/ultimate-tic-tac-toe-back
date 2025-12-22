@@ -1,8 +1,10 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Options;
 using UltimateTicTacToe.Core.Domain.Aggregate;
 using UltimateTicTacToe.Core.Domain.Events;
 using UltimateTicTacToe.Core.Features.GameSave;
 using UltimateTicTacToe.Core.Features.GameSave.Entities;
+using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Services;
 
 namespace UltimateTicTacToe.Core.Features.GameSaving;
@@ -13,14 +15,21 @@ public interface IStateSnapshotStore
 
     Task<int?> TryCreateSnapshotAsync(GameRoot gameRoot);
 
-    Task<GameRoot?> TryLoadGameAsync(Guid gameId, IEventStore eventStore);
+    Task<GameRoot?> TryLoadGameAsync(Guid gameId, IEventStore eventStore, CancellationToken ct = default);
 }
 
 public class StateSnapshotStore : IStateSnapshotStore
 {
     private readonly Dictionary<Guid, StoredSnapshot> _inMemorySnapshots = new();
+    private readonly int _eventsUntilSnapshot;
 
-    private const int MaxEventsBeforeSnapshot = 20;
+    public StateSnapshotStore(IOptions<GameplaySettings>? gameplaySettings = null)
+    {
+        // Default to 20 if not provided (unit tests can inject Options.Create(...)).
+        _eventsUntilSnapshot = gameplaySettings?.Value.EventsUntilSnapshot > 0
+            ? gameplaySettings.Value.EventsUntilSnapshot
+            : 20;
+    }
 
     public Task<int?> TryGetLatestSnapshotVersionAsync(Guid gameId)
     {
@@ -44,7 +53,10 @@ public class StateSnapshotStore : IStateSnapshotStore
         else if (eventsDelta.Any(e => e is MiniBoardWonEvent))
             cause = SnapshotCause.MiniBoardWon;
 
-        else if (versionSinceLast >= MaxEventsBeforeSnapshot)
+        else if (eventsDelta.Any(e => e is GameDrawnEvent))
+            cause = SnapshotCause.GameWon; // terminal state
+
+        else if (versionSinceLast >= _eventsUntilSnapshot)
             cause = SnapshotCause.PeriodicThresholdReached;
 
         if (cause == null)
@@ -70,19 +82,21 @@ public class StateSnapshotStore : IStateSnapshotStore
     /// Rehydrates the game state from the snapshot and any remaining events.
     /// </summary>
     /// <returns></returns>
-    public async Task<GameRoot?> TryLoadGameAsync(Guid gameId, IEventStore eventStore)
+    public async Task<GameRoot?> TryLoadGameAsync(Guid gameId, IEventStore eventStore, CancellationToken ct = default)
     {
         if (_inMemorySnapshots.TryGetValue(gameId, out var snapshot))
         {
             var snapshotProjection = JsonSerializer.Deserialize<GameRootSnapshotProjection>(snapshot.StateJson)!;
-            var remainingEvents = await eventStore.GetEventsAfterVersionAsync(gameId, snapshot.Version);
+            var remainingEvents = await eventStore.GetEventsAfterVersionAsync(gameId, snapshot.Version, ct);
             var gameRoot = snapshotProjection.ToGameRoot(remainingEvents);
 
             return gameRoot;
         }
 
         // Now we gonna replay all events from the beginning
-        var allEvents = await eventStore.GetAllEventsAsync(gameId);
+        var allEvents = await eventStore.GetAllEventsAsync(gameId, ct);
+        if (allEvents == null || allEvents.Count == 0)
+            return null;
         var replayedGameRoot = GameRoot.Rehydrate(allEvents, null);
 
         return replayedGameRoot;

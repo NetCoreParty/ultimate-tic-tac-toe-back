@@ -1,6 +1,8 @@
 ﻿using Moq;
+using Microsoft.Extensions.Options;
 using UltimateTicTacToe.Core.Domain.Aggregate;
 using UltimateTicTacToe.Core.Domain.Entities;
+using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Features.GameSaving;
 using UltimateTicTacToe.Core.Services;
 using UltimateTicTacToe.Core.Tests.Unit.Infrastructure;
@@ -10,7 +12,7 @@ namespace UltimateTicTacToe.Core.Tests.Unit.Features.Game.Domain.Services;
 public class StateSnapshotStoreTests
 {
     private readonly Mock<IEventStore> _eventStoreMock;
-    private readonly IStateSnapshotStore _sut = new StateSnapshotStore();
+    private readonly IStateSnapshotStore _sut = new StateSnapshotStore(Options.Create(new GameplaySettings { EventsUntilSnapshot = 20 }));
     
     public StateSnapshotStoreTests()
     {
@@ -66,7 +68,7 @@ public class StateSnapshotStoreTests
             .ReturnsAsync(eventsSinceSnapshot);
 
         // Act
-        var rehydratedGameState = await _sut.TryLoadGameAsync(gameId, _eventStoreMock.Object);
+        var rehydratedGameState = await _sut.TryLoadGameAsync(gameId, _eventStoreMock.Object, CancellationToken.None);
         
         // Assert
         Assert.NotNull(currentSnapshotVersion);
@@ -92,7 +94,7 @@ public class StateSnapshotStoreTests
         _eventStoreMock.Setup(s => s.GetAllEventsAsync(gameId, CancellationToken.None)).ReturnsAsync(gameRoot.UncommittedChanges.ToList());
 
         // Act
-        var rehydratedGameState = await _sut.TryLoadGameAsync(gameId, _eventStoreMock.Object);
+        var rehydratedGameState = await _sut.TryLoadGameAsync(gameId, _eventStoreMock.Object, CancellationToken.None);
 
         // Assert
         Assert.NotNull(rehydratedGameState);

@@ -141,7 +141,9 @@ public class GameRoot
         foreach (var _event in events ?? new List<IDomainEvent>())
         {
             gameRoot.When(_event, isEventReplay: true);
-            gameRoot.Version++;
+            // Prefer the persisted version when available (Mongo/InMemoryEventStore assign this).
+            // This keeps Version consistent even if we don't start from 0 (snapshot restore) or if versions are sparse.
+            gameRoot.Version = _event.Version > 0 ? _event.Version : gameRoot.Version + 1;
         }
 
         return gameRoot;
@@ -186,6 +188,14 @@ public class GameRoot
 
             case GameDrawnEvent:
                 Status = GameStatus.DRAW;
+                break;
+
+            // These events are informational for the aggregate today (board already derives mini-board state from CellMarkedEvent).
+            // We still keep cases here to make replay forward-compatible if board logic changes later.
+            case MiniBoardWonEvent:
+                break;
+
+            case MiniBoardDrawnEvent:
                 break;
         }
     }

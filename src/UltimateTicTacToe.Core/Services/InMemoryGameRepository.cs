@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Features.GameSaving;
 using UltimateTicTacToe.Core.Projections;
 
 namespace UltimateTicTacToe.Core.Services;
@@ -27,6 +28,7 @@ public interface IGameRepository
 public class InMemoryGameRepository : IGameRepository
 {
     private readonly IEventStore _eventStore;
+    private readonly IStateSnapshotStore _snapshotStore;
     private readonly ILogger<InMemoryGameRepository> _logger;
     private readonly GameplaySettings _gameplaySettings;
     private const int _maxSemaphoreTimeoutMs = 400;
@@ -42,11 +44,13 @@ public class InMemoryGameRepository : IGameRepository
 
     public InMemoryGameRepository(
         IEventStore eventStore,
+        IStateSnapshotStore snapshotStore,
         ILogger<InMemoryGameRepository> logger,
         IOptions<GameplaySettings> gameplaySettings
         )
     {
         _eventStore = eventStore;
+        _snapshotStore = snapshotStore;
         _logger = logger;
         _gameplaySettings = gameplaySettings.Value;
     }
@@ -108,6 +112,7 @@ public class InMemoryGameRepository : IGameRepository
             {
                 // Persist the creation event so the game can be rehydrated after restart.
                 await _eventStore.AppendEventsAsync(gameRoot.GameId, gameRoot.UncommittedChanges, ct);
+                await _snapshotStore.TryCreateSnapshotAsync(gameRoot);
                 GameRoot.ClearUncomittedEvents(gameRoot);
             }
             catch (Exception ex)
@@ -164,6 +169,7 @@ public class InMemoryGameRepository : IGameRepository
                 try
                 {
                     await _eventStore.AppendEventsAsync(gameRoot.GameId, newEvents, ct);
+                    await _snapshotStore.TryCreateSnapshotAsync(gameRoot);
                     GameRoot.ClearUncomittedEvents(gameRoot);
                 }
                 catch (Exception ex)
@@ -270,11 +276,8 @@ public class InMemoryGameRepository : IGameRepository
     {
         try
         {
-            var allEvents = await _eventStore.GetAllEventsAsync(gameId, ct);
-            if (allEvents == null || allEvents.Count == 0)
-                return null;
-
-            return GameRoot.Rehydrate(allEvents, null);
+            var game = await _snapshotStore.TryLoadGameAsync(gameId, _eventStore, ct);
+            return game;
         }
         catch (Exception ex)
         {

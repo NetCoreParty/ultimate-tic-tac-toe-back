@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Domain.Aggregate;
 using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Features.GameSaving;
 using UltimateTicTacToe.Core.Projections;
 using UltimateTicTacToe.Core.Services;
 
@@ -30,6 +31,7 @@ public class InMemoryGameRepositoryTests
     {
         return new InMemoryGameRepository(
             _eventStoreMock.Object,
+            new StateSnapshotStore(_settings),
             _loggerMock.Object,
             _settings
         );
@@ -82,7 +84,7 @@ public class InMemoryGameRepositoryTests
             BackpressureThresholdPercent = 90 // threshold=9
         });
 
-        var repo = new InMemoryGameRepository(_eventStoreMock.Object, _loggerMock.Object, customSettings);
+        var repo = new InMemoryGameRepository(_eventStoreMock.Object, new StateSnapshotStore(customSettings), _loggerMock.Object, customSettings);
 
         for (int i = 0; i < 9; i++)
         {

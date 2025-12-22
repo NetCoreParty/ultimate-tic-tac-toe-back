@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Domain.Events;
+using UltimateTicTacToe.Core.Features.GameSaving;
 using UltimateTicTacToe.Core.Projections;
 using UltimateTicTacToe.Core.Services;
 
@@ -18,13 +19,15 @@ public class InMemoryGameRepositoryPersistenceTests
     {
         var store = new InMemoryEventStore();
         var logger = new Mock<ILogger<InMemoryGameRepository>>().Object;
+        var snapshots1 = new StateSnapshotStore(Settings());
 
-        var repo1 = new InMemoryGameRepository(store, logger, Settings());
+        var repo1 = new InMemoryGameRepository(store, snapshots1, logger, Settings());
         var start = await repo1.TryStartGameAsync();
         Assert.True(start.IsSuccess);
 
         // "Restart": new repository instance with empty in-memory dictionary but same event store
-        var repo2 = new InMemoryGameRepository(store, logger, Settings());
+        var snapshots2 = new StateSnapshotStore(Settings());
+        var repo2 = new InMemoryGameRepository(store, snapshots2, logger, Settings());
 
         var move = new PlayerMoveRequest(
             GameId: start.Value.GameId,
@@ -47,8 +50,9 @@ public class InMemoryGameRepositoryPersistenceTests
     {
         var store = new InMemoryEventStore();
         var logger = new Mock<ILogger<InMemoryGameRepository>>().Object;
+        var snapshots = new StateSnapshotStore(Settings());
 
-        var repo = new InMemoryGameRepository(store, logger, Settings());
+        var repo = new InMemoryGameRepository(store, snapshots, logger, Settings());
         var start = await repo.TryStartGameAsync();
         Assert.True(start.IsSuccess);
 

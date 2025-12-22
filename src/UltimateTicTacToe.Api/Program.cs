@@ -12,6 +12,7 @@ using UltimateTicTacToe.API.RealTimeNotification;
 using Scalar.AspNetCore;
 using UltimateTicTacToe.Core.Features.Rooms;
 using UltimateTicTacToe.API.HostedServices;
+using UltimateTicTacToe.Core.Features.GameSaving;
 
 namespace UltimateTicTacToe.API;
 
@@ -24,6 +25,7 @@ public class Program
         #region Games Repository
 
         builder.Services.Configure<GameplaySettings>(builder.Configuration.GetSection("GameplaySettings"));
+        builder.Services.AddSingleton<IStateSnapshotStore, StateSnapshotStore>();
         builder.Services.AddSingleton<IGameRepository, InMemoryGameRepository>();
 
         #endregion
