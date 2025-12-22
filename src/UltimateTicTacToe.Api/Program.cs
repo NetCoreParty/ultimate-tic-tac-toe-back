@@ -81,11 +81,9 @@ public class Program
         }
 
         app.UseCors(corsConfig.PolicyName);
-
-        app.UseRouting();
-
-        app.UseAuthorization();
         app.UseHttpsRedirection();
+        app.UseRouting();
+        app.UseAuthorization();
 
         app.MapHub<MoveUpdatesHub>("/move-updates-hub")
             .RequireCors(corsConfig.PolicyName);
