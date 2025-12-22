@@ -19,7 +19,7 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] 1. HTTP Endpoint for Sending Moves to Server - Use this to accept new moves from the frontend
 - [x] 3. WebSocket Hub for keeping up with Real-Time server's updates
 - [ ] Snapshotting mechanism wired end-to-end (repo uses snapshots + clears uncommitted changes)
-- [ ] Event persistence + replay wired end-to-end (repo appends events, rehydrates on demand)
+- [x] Event persistence + replay wired end-to-end (repo appends events, rehydrates on demand)
 - [ ] Integration tests for controller/API surface
 - [ ] Property-based testing for game logic
 
@@ -31,7 +31,7 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [ ] HTTP middleware for CORS security
 - [ ] Basic game UI (Vue3) for local play
 
-- [ ] 2. HTTP Endpoint for Initial Move History (With Pagination) - Great for loading full or partial history when the game starts or when reconnecting
+- [x] 2. HTTP Endpoint for Initial Move History (With Pagination) - Great for loading full or partial history when the game starts or when reconnecting
 ---
 
 ## 💡 Suggested Next Steps (Agent Review)
@@ -40,21 +40,21 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 
 ### P0 (Next sprint / unblockers)
 
-- [ ] Wire **event persistence** into `IGameRepository` (append `GameRoot.UncommittedChanges` to `IEventStore`)
+- [x] Wire **event persistence** into `IGameRepository` (append `GameRoot.UncommittedChanges` to `IEventStore`)
   - DoD:
     - After a successful move/start, events are appended via `IEventStore.AppendEventsAsync(...)`
     - `GameRoot.ClearUncomittedEvents(...)` is called after persistence
     - Basic optimistic/concurrency safety story is defined (even if “single node lock” for now)
   - Touchpoints: `src/UltimateTicTacToe.Core/Services/InMemoryGameRepository.cs`, `src/UltimateTicTacToe.Core/Domain/Aggregate/GameRoot.cs`, `src/UltimateTicTacToe.Storage/Services/MongoEventStore.cs`
 
-- [ ] Implement **move history endpoint** end-to-end (`GET /api/game-management/{gameId}/moves-history?skip&take`)
+- [x] Implement **move history endpoint** end-to-end (`GET /api/game-management/{gameId}/moves-history?skip&take`)
   - DoD:
     - `IGameRepository.GetMovesFilteredByAsync(...)` implemented
     - Handler returns paginated moves based on stored/replayed events
     - Returns deterministic ordering (by event version)
   - Touchpoints: `src/UltimateTicTacToe.Core/Features/GameManagement/GetMovesHistoryQueryHandler.cs`, `src/UltimateTicTacToe.Core/Services/InMemoryGameRepository.cs`, `src/UltimateTicTacToe.Core/Projections/ExternalProjections.cs`
 
-- [ ] Finish **SignalR group wiring** so clients actually receive game-scoped updates
+- [x] Finish **SignalR group wiring** so clients actually receive game-scoped updates
   - DoD:
     - Client can join a group by `gameId` (string)
     - Server broadcasts `MoveApplied`/`MoveRejected` to that group
@@ -92,11 +92,11 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 
 ## ⚠️ Tech Debt / Risks (Agent Notes)
 
-- [ ] `SemaphoreSlim` timeout handling in `InMemoryGameRepository`
+- [x] `SemaphoreSlim` timeout handling in `InMemoryGameRepository`
   - Risk: `WaitAsync(timeout, ct)` returns `false`, but current code always calls `Release()` in `finally`, which can lead to `SemaphoreFullException` and incorrect concurrency behavior.
   - Fix direction: capture the `WaitAsync(...)` result; only `Release()` if acquired, and return 503/429 on lock contention.
 
-- [ ] MongoDB event serialization registration is incomplete
+- [x] MongoDB event serialization registration is incomplete
   - Risk: `AddGlobalMongoSerialization()` currently registers `DomainEventBase` and explicitly maps `CellMarkedEvent` only; other domain events may fail to deserialize or lose type fidelity.
   - Fix direction: register class maps for all domain events (e.g., `GameCreatedEvent`, `MiniBoardWonEvent`, etc.) or use a safer polymorphic serialization approach.
 

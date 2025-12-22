@@ -29,14 +29,15 @@ public class MongoEventStore : IEventStore
             OccurredOn = e.OccurredOn
         });
 
-        await _collection.InsertManyAsync(storedEvents);
+        await _collection.InsertManyAsync(storedEvents, cancellationToken: ct);
     }
 
     public async Task<List<IDomainEvent>> GetAllEventsAsync(Guid gameAggregateId, CancellationToken ct = default)
     {
         var storedEvents = await _collection
             .Find(e => e.AggregateId == gameAggregateId)
-            .ToListAsync();
+            .SortBy(e => e.EventVersion)
+            .ToListAsync(ct);
 
         return storedEvents
             .Select(e => e.Data)
@@ -47,8 +48,8 @@ public class MongoEventStore : IEventStore
     {
         var storedEvents = await _collection
             .Find(e => e.AggregateId == gameAggregateId && e.EventVersion > version)
-            .SortBy(e => e.OccurredOn)
-            .ToListAsync();
+            .SortBy(e => e.EventVersion)
+            .ToListAsync(ct);
 
         return storedEvents
             .Select(e => e.Data)
@@ -57,7 +58,7 @@ public class MongoEventStore : IEventStore
 
     public async Task DeleteEventsByAsync(Guid gameAggregateId, CancellationToken ct = default)
     {
-        await _collection.DeleteManyAsync(e => e.AggregateId == gameAggregateId);
+        await _collection.DeleteManyAsync(e => e.AggregateId == gameAggregateId, ct);
     }
 }
 

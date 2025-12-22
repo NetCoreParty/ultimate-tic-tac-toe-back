@@ -17,7 +17,7 @@ public class GetMovesHistoryQueryHandler : IRequestHandler<GetMovesHistoryQuery,
 
     public async Task<Result<FilteredMovesHistoryResponse>> Handle(GetMovesHistoryQuery query, CancellationToken ct)
     {
-        var result = await _gameRepo.GetMovesFilteredByAsync(query.Skip, query.Take, ct);
+        var result = await _gameRepo.GetMovesFilteredByAsync(query.GameId, query.Skip, query.Take, ct);
         return result;
     }
 }

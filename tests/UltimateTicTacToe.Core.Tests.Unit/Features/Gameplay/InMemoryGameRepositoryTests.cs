@@ -4,6 +4,7 @@ using Moq;
 using System.Collections.Concurrent;
 using UltimateTicTacToe.Core.Configuration;
 using UltimateTicTacToe.Core.Domain.Aggregate;
+using UltimateTicTacToe.Core.Domain.Events;
 using UltimateTicTacToe.Core.Projections;
 using UltimateTicTacToe.Core.Services;
 
@@ -43,6 +44,11 @@ public class InMemoryGameRepositoryTests
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
         Assert.Equal(1, repo.GamesNow);
+
+        // Persisted + cleared uncommitted events
+        _eventStoreMock.Verify(s => s.AppendEventsAsync(result.Value.GameId, It.IsAny<IEnumerable<IDomainEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+        var game = GetPrivateGame(repo, result.Value.GameId);
+        Assert.Equal(0, game.UncommittedChanges.Count);
     }
 
     [Fact]
@@ -67,6 +73,10 @@ public class InMemoryGameRepositoryTests
     {
         var repo = CreateRepository();
         var move = new PlayerMoveRequest(Guid.NewGuid(), Guid.NewGuid(), 0, 0, 0, 0);
+
+        _eventStoreMock
+            .Setup(s => s.GetAllEventsAsync(move.GameId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<IDomainEvent>());
 
         var result = await repo.TryMakeMoveAsync(move);
 
