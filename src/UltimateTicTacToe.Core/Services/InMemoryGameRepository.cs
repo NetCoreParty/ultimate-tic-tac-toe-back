@@ -11,6 +11,11 @@ public interface IGameRepository
 {
     Task<Result<StartGameResponse>> TryStartGameAsync(CancellationToken ct = default);
 
+    /// <summary>
+    /// Create a new game for two known players (used by rooms/matchmaking).
+    /// </summary>
+    Task<Result<StartGameResponse>> TryStartGameForPlayersAsync(Guid playerXId, Guid playerOId, Guid? gameId = null, CancellationToken ct = default);
+
     Task<Result<bool>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default);
 
     Task<Result<bool>> TryClearFinishedGamesAsync(CancellationToken ct = default);
@@ -51,7 +56,19 @@ public class InMemoryGameRepository : IGameRepository
     public async Task<Result<StartGameResponse>> TryStartGameAsync(CancellationToken ct = default)
         => await TryCreateGameAsync(ct);
 
+    public async Task<Result<StartGameResponse>> TryStartGameForPlayersAsync(Guid playerXId, Guid playerOId, Guid? gameId = null, CancellationToken ct = default)
+        => await TryCreateGameAsync(playerXId, playerOId, gameId, ct);
+
     private async Task<Result<StartGameResponse>> TryCreateGameAsync(CancellationToken ct)
+    {
+        // Legacy endpoint: creates random players (kept for now).
+        var gameId = Guid.NewGuid();
+        var onePlayerId = Guid.NewGuid();
+        var anotherPlayerId = Guid.NewGuid();
+        return await TryCreateGameAsync(onePlayerId, anotherPlayerId, gameId, ct);
+    }
+
+    private async Task<Result<StartGameResponse>> TryCreateGameAsync(Guid playerXId, Guid playerOId, Guid? gameId, CancellationToken ct)
     {
         var acquired = await _semaphore.WaitAsync(_maxSemaphoreTimeoutMs, ct);
         if (!acquired)
@@ -78,12 +95,9 @@ public class InMemoryGameRepository : IGameRepository
                 );
             }
 
-            // TODO: rewrite later, its just mock, player guids should be created outside
-            var gameId = Guid.NewGuid();
-            var onePlayerId = Guid.NewGuid();
-            var anotherPlayerId = Guid.NewGuid();
+            var resolvedGameId = gameId ?? Guid.NewGuid();
 
-            var gameRoot = GameRoot.CreateNew(gameId, onePlayerId, anotherPlayerId);
+            var gameRoot = GameRoot.CreateNew(resolvedGameId, playerXId, playerOId);
 
             if (!_games.TryAdd(gameRoot.GameId, gameRoot))
             {
@@ -105,7 +119,7 @@ public class InMemoryGameRepository : IGameRepository
 
             return Result<StartGameResponse>.Success(
                 new StartGameResponse(gameRoot.GameId, gameRoot.PlayerXId, gameRoot.PlayerOId, gameRoot.Status)
-                );
+            );
         }
         finally
         {

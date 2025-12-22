@@ -10,6 +10,8 @@ using UltimateTicTacToe.API.Hubs;
 using UltimateTicTacToe.Core.Features.RealTimeNotification;
 using UltimateTicTacToe.API.RealTimeNotification;
 using Scalar.AspNetCore;
+using UltimateTicTacToe.Core.Features.Rooms;
+using UltimateTicTacToe.API.HostedServices;
 
 namespace UltimateTicTacToe.API;
 
@@ -23,6 +25,19 @@ public class Program
 
         builder.Services.Configure<GameplaySettings>(builder.Configuration.GetSection("GameplaySettings"));
         builder.Services.AddSingleton<IGameRepository, InMemoryGameRepository>();
+
+        #endregion
+
+        #region Rooms / Matchmaking
+
+        builder.Services.Configure<RoomSettings>(builder.Configuration.GetSection("RoomSettings"));
+        builder.Services.AddSingleton<IRoomStore, MongoRoomStore>();
+        builder.Services.AddSingleton<IMatchmakingTicketStore, MongoMatchmakingTicketStore>();
+        builder.Services.AddSingleton<IRoomMetricsStore, MongoRoomMetricsStore>();
+        builder.Services.AddSingleton<IMatchmakingService, MatchmakingService>();
+        builder.Services.AddTransient<IRoomsNotifier, RoomsNotificationHub>();
+        builder.Services.AddHostedService<RoomsStoreInitializer>();
+        builder.Services.AddHostedService<RoomsExpiryWorker>();
 
         #endregion
 
@@ -86,6 +101,9 @@ public class Program
         app.UseAuthorization();
 
         app.MapHub<MoveUpdatesHub>("/move-updates-hub")
+            .RequireCors(corsConfig.PolicyName);
+
+        app.MapHub<RoomsHub>("/rooms-hub")
             .RequireCors(corsConfig.PolicyName);
 
         app.MapControllers();

@@ -5,18 +5,22 @@ using UltimateTicTacToe.API.Controllers;
 using UltimateTicTacToe.API.Tests.Unit.Extensions;
 using UltimateTicTacToe.Core;
 using UltimateTicTacToe.Core.Features.Metrics;
+using UltimateTicTacToe.Core.Features.Rooms;
 
 namespace UltimateTicTacToe.API.Tests.Unit.Controllers;
 
 public class MetricsControllerTests
 {
     private readonly Mock<IMediator> _mediatorMock;
+    private readonly Mock<IRoomStore> _roomsMock = new();
+    private readonly Mock<IMatchmakingTicketStore> _ticketsMock = new();
+    private readonly Mock<IRoomMetricsStore> _roomMetricsMock = new();
     private readonly MetricsController _sut;
 
     public MetricsControllerTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new MetricsController(_mediatorMock.Object);
+        _sut = new MetricsController(_mediatorMock.Object, _roomsMock.Object, _ticketsMock.Object, _roomMetricsMock.Object);
     }    
 
     [Fact]
