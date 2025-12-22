@@ -21,7 +21,8 @@ public class InMemoryGameRepositoryTests
         _settings = Options.Create(new GameplaySettings
         {
             MaxActiveGames = 3,
-            EventsUntilSnapshot = 5
+            EventsUntilSnapshot = 5,
+            BackpressureThresholdPercent = 90
         });
     }
 
@@ -64,6 +65,33 @@ public class InMemoryGameRepositoryTests
 
         var result = await repo.TryStartGameAsync();
 
+        Assert.False(result.IsSuccess);
+        Assert.Equal(429, result.Code);
+    }
+
+    [Fact]
+    public async Task TryStartGameAsync_ShouldFail_WhenInBackpressure()
+    {
+        // MaxActiveGames=3 and BackpressureThresholdPercent=90 -> threshold=ceil(2.7)=3
+        // So with 2 active games: allowed; with 3 active games: cap hit (429); but threshold equals cap here.
+        // Use a different setting to get threshold < cap.
+        var customSettings = Options.Create(new GameplaySettings
+        {
+            MaxActiveGames = 10,
+            EventsUntilSnapshot = 5,
+            BackpressureThresholdPercent = 90 // threshold=9
+        });
+
+        var repo = new InMemoryGameRepository(_eventStoreMock.Object, _loggerMock.Object, customSettings);
+
+        for (int i = 0; i < 9; i++)
+        {
+            var r = await repo.TryStartGameAsync();
+            Assert.True(r.IsSuccess);
+        }
+
+        // 10th start should be rejected by backpressure (active=9, threshold=9)
+        var result = await repo.TryStartGameAsync();
         Assert.False(result.IsSuccess);
         Assert.Equal(429, result.Code);
     }

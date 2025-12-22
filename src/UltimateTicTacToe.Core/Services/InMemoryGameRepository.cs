@@ -59,9 +59,23 @@ public class InMemoryGameRepository : IGameRepository
 
         try
         {
+            // Capacity gate (backpressure) to avoid admitting new games too close to the hard cap.
+            // NOTE: With rooms/matchmaking, apply the same logic to queue join + private room create/join.
+            var max = _gameplaySettings.MaxActiveGames;
+            var pct = _gameplaySettings.BackpressureThresholdPercent <= 0 ? 100 : _gameplaySettings.BackpressureThresholdPercent;
+            var threshold = (int)Math.Ceiling(max * (pct / 100.0));
+
             if (_games.Count >= _gameplaySettings.MaxActiveGames)
             {
                 return Result<StartGameResponse>.Failure(429, "Please try later. Too many parallel games in memory.");
+            }
+
+            if (_games.Count >= threshold)
+            {
+                return Result<StartGameResponse>.Failure(
+                    429,
+                    $"Server is near capacity. Please retry. (active={_games.Count}, threshold={threshold}, cap={max})"
+                );
             }
 
             // TODO: rewrite later, its just mock, player guids should be created outside

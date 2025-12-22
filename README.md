@@ -36,6 +36,28 @@ Built using .NET 7, this project serves both as a game and as a reference archit
 
 ---
 
+## 🧩 Custom Logic / Conventions
+
+- **Event sourcing + replay (restart-safe)**:
+  - Game creation and moves are persisted as domain events to Mongo via `IEventStore`.
+  - If a game isn’t found in memory, it is rehydrated from stored events (event replay) and play continues.
+  - Key code: `src/UltimateTicTacToe.Core/Services/InMemoryGameRepository.cs`, `src/UltimateTicTacToe.Storage/Services/MongoEventStore.cs`
+
+- **Moves history is derived from events**:
+  - `/api/game-management/{gameId}/moves-history?skip&take` reads persisted `CellMarkedEvent`s ordered by event version.
+  - Key code: `src/UltimateTicTacToe.Core/Features/GameManagement/GetMovesHistoryQueryHandler.cs`
+
+- **Capacity backpressure (near-capacity throttling)**:
+  - Hard cap: `GameplaySettings.MaxActiveGames`
+  - Backpressure starts at:
+
+    \( threshold = \lceil MaxActiveGames \cdot BackpressureThresholdPercent / 100 \rceil \)
+  - When `activeGames >= threshold`, the server returns **HTTP 429** for new admissions.
+    (This is implemented for game start now; the same rule will be applied to rooms queue + private create/join.)
+  - Dev defaults: `MaxActiveGames=140`, `BackpressureThresholdPercent=90` ⇒ threshold = **126**.
+  - Config: `src/UltimateTicTacToe.Api/appsettings.Development.json`
+---
+
 ## 🔧 Getting Started
 
 ### Prerequisites
