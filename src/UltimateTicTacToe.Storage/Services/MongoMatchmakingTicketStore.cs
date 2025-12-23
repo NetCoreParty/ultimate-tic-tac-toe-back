@@ -90,6 +90,18 @@ public class MongoMatchmakingTicketStore : IMatchmakingTicketStore
         return res.ModifiedCount == 1;
     }
 
+    public async Task<MatchmakingTicketDto?> GetActiveTicketForUserAsync(Guid userId, DateTime nowUtc, CancellationToken ct)
+    {
+        var filter = Builders<TicketDoc>.Filter.And(
+            Builders<TicketDoc>.Filter.Eq(x => x.UserId, userId),
+            Builders<TicketDoc>.Filter.Eq(x => x.Status, MatchmakingTicketStatus.Queued),
+            Builders<TicketDoc>.Filter.Gt(x => x.ExpiresAtUtc, nowUtc)
+        );
+
+        var doc = await _tickets.Find(filter).SortByDescending(x => x.CreatedAtUtc).Limit(1).FirstOrDefaultAsync(ct);
+        return doc?.ToDto();
+    }
+
     internal class TicketDoc
     {
         [BsonId]

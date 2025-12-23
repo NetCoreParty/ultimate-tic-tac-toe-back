@@ -27,13 +27,15 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] Integration tests for controller/API surface (basic API smoke tests)
 - [ ] Property-based testing for game logic
 - [x] Rooms + matchmaking (Regular/Private) + TTL + metrics + expiry notifications
+- [x] Rooms read endpoints (`GET /api/rooms/me`, `GET /api/rooms/private/{joinCode}`)
 - [x] Capacity backpressure (429) for new admissions near `MaxActiveGames` + documented in README
+- [x] Health checks (`/health/live`, `/health/ready`) + optional Mongo ping (configurable)
+- [x] Correlation id middleware (`X-Correlation-Id`) + logging scope propagation
 
 ---
 
 ## 🔄 In Progress
 
-- [ ] HTTP middleware for trace correlation
 - [ ] HTTP middleware for CORS security
 - [ ] Basic game UI (Vue3) for local play
 
@@ -87,12 +89,12 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 
 ### P2 (Observability / ops)
 
-- [ ] Add health checks + basic operational endpoints
+- [x] Add health checks + basic operational endpoints
   - DoD:
     - Health check verifies Mongo connectivity (when enabled)
     - Metrics include active games, per-endpoint counts/latency (minimal)
 
-- [ ] Trace correlation middleware
+- [x] Trace correlation middleware
   - DoD:
     - Adds/propagates correlation id across logs and responses
 
@@ -104,9 +106,8 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 - [x] MongoDB event serialization registration is incomplete
   - Note: All domain event types should be registered for polymorphic (de)serialization; keep an integration test to guard this.
 
-- [ ] Event replay / rehydration behavior is partially implemented
-  - Risk: `GameRoot.PlayMove(..., isEventReplay:true)` returns early, and replay currently relies on `When(CellMarkedEvent)` mutating the board. This can diverge as more event types are introduced (mini-board wins, full-game wins, draws).
-  - Fix direction: define a consistent “apply” path for each event type during replay, so rehydration is correct and future-proof.
+- [x] Event replay / rehydration behavior covers key events beyond `CellMarkedEvent`
+  - Note: Replay now applies `MiniBoardWonEvent` / `MiniBoardDrawnEvent` deterministically; keep unit tests to guard regressions.
 
 - [ ] Rooms TTL is eventual-consistent (Mongo TTL)
   - Risk: TTL deletion timing is not exact; client UX can be confusing if a room “hangs” until TTL cleans up.
@@ -130,12 +131,43 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 
 - [x] RESTful API documentation (OpenAPI + Scalar in Development)
 - [x] Metrics endpoints (games now + rooms)
-- [ ] Health checks (including Mongo connectivity)
+- [x] Health checks (including Mongo connectivity)
 - [ ] Rate limiting / throttling (beyond current backpressure)
 
 ### 🎮 Frontend / UI
 
-- [ ] Basic game UI (Vue3)
+#### Frontend (Vue3 + Vite + TypeScript + Vuetify)
+
+Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
+
+**P0 (Next sprint / unblockers)**
+- [ ] Scaffold `frontend/` Vue3+Vite+TS app + `vue-router` + `pinia` + **Vuetify**
+  - DoD: `npm run dev` starts, routing works, lint/format configured
+- [ ] API client wrapper (frontend)
+  - DoD:
+    - Sends `X-User-Id` on every request (persisted in local storage)
+    - Propagates `X-Correlation-Id` for tracing
+    - Normalizes `Result<T>` + HTTP codes (400/403/409/429)
+- [ ] Lobby + Rooms flow (pre-game)
+  - DoD:
+    - Lobby: “Play (queue)”, “Create private room”, “Join private room”
+    - SignalR `/rooms-hub`: `JoinUser`, handle `QueueJoined`, `MatchFound`, `PrivateRoomCreated`, `QueueExpired`, `RoomExpired`
+    - Restore on refresh using `GET /api/rooms/me`; validate join link via `GET /api/rooms/private/{joinCode}`
+    - Backpressure UX: clear 429 message + retry/backoff
+
+**P1 (Gameplay UI)**
+- [ ] Game page `/game/:gameId`
+  - DoD:
+    - History load: `GET /api/game-management/{gameId}/moves-history?skip&take`
+    - Realtime: connect `/move-updates-hub`, join game group, apply updates
+    - Move submit: `POST /api/game/move` with correct error UX for 400/403/409
+
+**P2 (Shipping & tests)**
+- [ ] Dockerized frontend (nginx) + compose
+  - DoD: runs in Docker and targets Rider-run API via `http://host.docker.internal:8080`
+- [ ] E2E smoke tests (Playwright)
+  - DoD: (1) regular matchmaking end-to-end, (2) private create/join end-to-end
+
 - [ ] Multiplayer session management
 - [ ] Spectator view
 

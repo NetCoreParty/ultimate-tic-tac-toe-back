@@ -239,6 +239,48 @@ public class ApiSmokeTests
     }
 
     [Fact]
+    public async Task Rooms_ReadEndpoints_ShouldReturn_CurrentState()
+    {
+        var store = new InMemoryEventStore();
+        var snapshots = new StateSnapshotStore();
+        var rooms = new InMemoryRoomStore();
+        var tickets = new InMemoryMatchmakingTicketStore();
+        var metrics = new InMemoryRoomMetricsStore();
+
+        await using var factory = new ApiFactory(store, snapshots, rooms, tickets, metrics);
+        var client = factory.CreateClient();
+
+        var owner = Guid.NewGuid();
+
+        // Create private room (owner joins automatically)
+        var createReq = new HttpRequestMessage(HttpMethod.Post, "/api/rooms/private");
+        createReq.Headers.Add("X-User-Id", owner.ToString());
+        var createRes = await client.SendAsync(createReq);
+        createRes.EnsureSuccessStatusCode();
+
+        using var createJson = JsonDocument.Parse(await createRes.Content.ReadAsStringAsync());
+        var joinCode = createJson.RootElement.GetProperty("value").GetProperty("joinCode").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(joinCode));
+
+        // /api/rooms/private/{joinCode}
+        var privateState = await client.GetAsync($"/api/rooms/private/{joinCode}");
+        privateState.EnsureSuccessStatusCode();
+        using var privateJson = JsonDocument.Parse(await privateState.Content.ReadAsStringAsync());
+        Assert.Equal(joinCode, privateJson.RootElement.GetProperty("joinCode").GetString());
+        Assert.Equal(1, privateJson.RootElement.GetProperty("players").GetArrayLength());
+
+        // /api/rooms/me
+        var myReq = new HttpRequestMessage(HttpMethod.Get, "/api/rooms/me");
+        myReq.Headers.Add("X-User-Id", owner.ToString());
+        var myRes = await client.SendAsync(myReq);
+        myRes.EnsureSuccessStatusCode();
+
+        using var myJson = JsonDocument.Parse(await myRes.Content.ReadAsStringAsync());
+        Assert.True(myJson.RootElement.TryGetProperty("room", out var roomEl));
+        Assert.Equal(joinCode, roomEl.GetProperty("joinCode").GetString());
+    }
+
+    [Fact]
     public async Task Backpressure_ShouldReject_RoomsQueueAndPrivateCreate()
     {
         var store = new InMemoryEventStore();

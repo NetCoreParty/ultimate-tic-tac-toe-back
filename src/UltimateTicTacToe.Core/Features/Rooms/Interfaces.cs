@@ -15,6 +15,10 @@ public interface IRoomStore
     Task<bool> DeleteRoomAsync(Guid roomId, CancellationToken ct);
 
     Task<IReadOnlyList<RoomDto>> GetExpiredHalfFullWaitingRoomsAsync(DateTime nowUtc, int take, CancellationToken ct);
+
+    Task<RoomDto?> GetActiveRoomForUserAsync(Guid userId, DateTime nowUtc, CancellationToken ct);
+
+    Task<RoomDto?> GetActivePrivateRoomByJoinCodeAsync(string joinCode, DateTime nowUtc, CancellationToken ct);
 }
 
 public interface IMatchmakingTicketStore
@@ -30,6 +34,8 @@ public interface IMatchmakingTicketStore
     Task<IReadOnlyList<MatchmakingTicketDto>> GetExpiredQueuedTicketsAsync(DateTime nowUtc, int take, CancellationToken ct);
 
     Task<bool> TryMarkExpiredAsync(Guid ticketId, CancellationToken ct);
+
+    Task<MatchmakingTicketDto?> GetActiveTicketForUserAsync(Guid userId, DateTime nowUtc, CancellationToken ct);
 }
 
 public interface IRoomMetricsStore

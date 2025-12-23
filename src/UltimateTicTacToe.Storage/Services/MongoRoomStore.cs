@@ -124,6 +124,29 @@ public class MongoRoomStore : IRoomStore
         return docs.Select(d => d.ToDto()).ToList();
     }
 
+    public async Task<RoomDto?> GetActiveRoomForUserAsync(Guid userId, DateTime nowUtc, CancellationToken ct)
+    {
+        var filter = Builders<RoomDoc>.Filter.And(
+            Builders<RoomDoc>.Filter.Gt(x => x.ExpiresAtUtc, nowUtc),
+            Builders<RoomDoc>.Filter.ElemMatch(x => x.Players, p => p.UserId == userId)
+        );
+
+        var doc = await _rooms.Find(filter).SortByDescending(x => x.CreatedAtUtc).Limit(1).FirstOrDefaultAsync(ct);
+        return doc?.ToDto();
+    }
+
+    public async Task<RoomDto?> GetActivePrivateRoomByJoinCodeAsync(string joinCode, DateTime nowUtc, CancellationToken ct)
+    {
+        var filter = Builders<RoomDoc>.Filter.And(
+            Builders<RoomDoc>.Filter.Eq(x => x.Type, RoomType.Private),
+            Builders<RoomDoc>.Filter.Eq(x => x.JoinCode, joinCode),
+            Builders<RoomDoc>.Filter.Gt(x => x.ExpiresAtUtc, nowUtc)
+        );
+
+        var doc = await _rooms.Find(filter).Limit(1).FirstOrDefaultAsync(ct);
+        return doc?.ToDto();
+    }
+
     internal class RoomDoc
     {
         [BsonId]

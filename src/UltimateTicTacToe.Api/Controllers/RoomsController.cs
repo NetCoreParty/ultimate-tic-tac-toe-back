@@ -9,10 +9,14 @@ namespace UltimateTicTacToe.API.Controllers;
 public class RoomsController : ControllerBase
 {
     private readonly IMatchmakingService _matchmaking;
+    private readonly IRoomStore _rooms;
+    private readonly IMatchmakingTicketStore _tickets;
 
-    public RoomsController(IMatchmakingService matchmaking)
+    public RoomsController(IMatchmakingService matchmaking, IRoomStore rooms, IMatchmakingTicketStore tickets)
     {
         _matchmaking = matchmaking;
+        _rooms = rooms;
+        _tickets = tickets;
     }
 
     [HttpPost("queue")]
@@ -57,6 +61,38 @@ public class RoomsController : ControllerBase
 
         var result = await _matchmaking.JoinPrivateRoomAsync(userIdResult.Value, joinCode, ct);
         return result.ToActionResult();
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyRoomState(CancellationToken ct = default)
+    {
+        var userIdResult = TryGetUserId();
+        if (!userIdResult.IsSuccess)
+            return userIdResult.ToActionResult();
+
+        var now = DateTime.UtcNow;
+        var ticket = await _tickets.GetActiveTicketForUserAsync(userIdResult.Value, now, ct);
+        var room = await _rooms.GetActiveRoomForUserAsync(userIdResult.Value, now, ct);
+
+        return Ok(new
+        {
+            Ticket = ticket,
+            Room = room
+        });
+    }
+
+    [HttpGet("private/{joinCode}")]
+    public async Task<IActionResult> GetPrivateRoomState(string joinCode, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(joinCode))
+            return BadRequest("Join code is required.");
+
+        var now = DateTime.UtcNow;
+        var room = await _rooms.GetActivePrivateRoomByJoinCodeAsync(joinCode.Trim(), now, ct);
+        if (room == null)
+            return NotFound();
+
+        return Ok(room);
     }
 
     private UltimateTicTacToe.Core.Result<Guid> TryGetUserId()

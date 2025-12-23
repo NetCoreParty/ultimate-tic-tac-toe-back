@@ -126,6 +126,30 @@ public sealed class InMemoryRoomStore : IRoomStore
             return Task.FromResult<IReadOnlyList<RoomDto>>(expired);
         }
     }
+
+    public Task<RoomDto?> GetActiveRoomForUserAsync(Guid userId, DateTime nowUtc, CancellationToken ct)
+    {
+        lock (_lock)
+        {
+            var room = _rooms.Values
+                .Where(r => r.ExpiresAtUtc > nowUtc && r.Players.Any(p => p.UserId == userId))
+                .OrderByDescending(r => r.CreatedAtUtc)
+                .FirstOrDefault();
+            return Task.FromResult<RoomDto?>(room);
+        }
+    }
+
+    public Task<RoomDto?> GetActivePrivateRoomByJoinCodeAsync(string joinCode, DateTime nowUtc, CancellationToken ct)
+    {
+        lock (_lock)
+        {
+            var room = _rooms.Values.FirstOrDefault(r =>
+                r.Type == RoomType.Private &&
+                r.JoinCode == joinCode &&
+                r.ExpiresAtUtc > nowUtc);
+            return Task.FromResult<RoomDto?>(room);
+        }
+    }
 }
 
 public sealed class InMemoryMatchmakingTicketStore : IMatchmakingTicketStore
@@ -196,6 +220,18 @@ public sealed class InMemoryMatchmakingTicketStore : IMatchmakingTicketStore
             if (t.Status != MatchmakingTicketStatus.Queued) return Task.FromResult(false);
             _tickets[ticketId] = t with { Status = MatchmakingTicketStatus.Expired };
             return Task.FromResult(true);
+        }
+    }
+
+    public Task<MatchmakingTicketDto?> GetActiveTicketForUserAsync(Guid userId, DateTime nowUtc, CancellationToken ct)
+    {
+        lock (_lock)
+        {
+            var t = _tickets.Values
+                .Where(x => x.UserId == userId && x.Status == MatchmakingTicketStatus.Queued && x.ExpiresAtUtc > nowUtc)
+                .OrderByDescending(x => x.CreatedAtUtc)
+                .FirstOrDefault();
+            return Task.FromResult<MatchmakingTicketDto?>(t);
         }
     }
 
