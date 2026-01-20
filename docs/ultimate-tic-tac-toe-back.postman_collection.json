@@ -1,0 +1,1313 @@
+{
+	"info": {
+		"_postman_id": "93886589-773e-4a90-8895-f5b416b6536b",
+		"name": "ultimate-tic-tac-toe-back",
+		"description": "Backend API for Ultimate Tic Tac Toe. Endpoints are under /api with Result<T> response wrapper. Uses collection variable {{baseUrl}}.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11563337"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7197"
+		},
+		{
+			"key": "baseUrlHttp",
+			"value": "http://localhost:5094"
+		},
+		{
+			"key": "userId",
+			"value": "00000000-0000-0000-0000-000000000002"
+		},
+		{
+			"key": "gameId",
+			"value": "00000000-0000-0000-0000-000000000001"
+		},
+		{
+			"key": "ticketId",
+			"value": "00000000-0000-0000-0000-000000000010"
+		},
+		{
+			"key": "joinCode",
+			"value": "ABCD1234EF"
+		},
+		{
+			"key": "userIdA",
+			"value": "00000000-0000-0000-0000-000000000002"
+		},
+		{
+			"key": "userIdB",
+			"value": "00000000-0000-0000-0000-000000000003"
+		},
+		{
+			"key": "playerXId",
+			"value": "00000000-0000-0000-0000-000000000002"
+		},
+		{
+			"key": "playerOId",
+			"value": "00000000-0000-0000-0000-000000000003"
+		}
+	],
+	"item": [
+		{
+			"name": "StartGame",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/api/game/start"
+			},
+			"response": [
+				{
+					"name": "200_GameStarted",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game/start"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": {\n        \"gameId\": \"00000000-0000-0000-0000-000000000001\",\n        \"playerXId\": \"00000000-0000-0000-0000-000000000002\",\n        \"playerOId\": \"00000000-0000-0000-0000-000000000003\",\n        \"gameState\": \"IN_PROGRESS\"\n    }\n}"
+				},
+				{
+					"name": "429_TooManyGames",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game/start"
+					},
+					"status": "Too Many Requests",
+					"code": 429,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": false,\n    \"code\": 429,\n    \"error\": \"Please try later. Too many parallel games in memory.\",\n    \"value\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "MakeMove",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gameId\": \"{{gameId}}\",\n    \"playerId\": \"{{userId}}\",\n    \"miniBoardRowId\": 0,\n    \"miniBoardColId\": 0,\n    \"cellRowId\": 1,\n    \"cellColId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/game/move"
+				}
+			},
+			"response": [
+				{
+					"name": "200_MoveApplied",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{gameId}}\",\n    \"playerId\": \"{{userId}}\",\n    \"miniBoardRowId\": 0,\n    \"miniBoardColId\": 0,\n    \"cellRowId\": 1,\n    \"cellColId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/game/move"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": true\n}"
+		},
+		{
+					"name": "404_GameNotFound",
+					"originalRequest": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{gameId}}\",\n    \"playerId\": \"{{userId}}\",\n    \"miniBoardRowId\": 0,\n    \"miniBoardColId\": 0,\n    \"cellRowId\": 1,\n    \"cellColId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+						"url": "{{baseUrl}}/api/game/move"
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": false,\n    \"code\": 404,\n    \"error\": \"Game with ID 00000000-0000-0000-0000-000000000001 not found.\",\n    \"value\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "GetMovesHistory",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/game-management/{{gameId}}/moves-history?skip=0&take=10"
+			},
+			"response": [
+				{
+					"name": "200_MovesHistory",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game-management/{{gameId}}/moves-history?skip=0&take=10"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": {\n        \"gameId\": \"{{gameId}}\",\n        \"moves\": [\n            {\n                \"playerId\": \"{{userId}}\",\n                \"moveId\": 1,\n                \"miniBoardRowId\": 0,\n                \"miniBoardColId\": 0,\n                \"cellRowId\": 1,\n                \"cellColId\": 1\n            },\n            {\n                \"playerId\": \"00000000-0000-0000-0000-000000000003\",\n                \"moveId\": 2,\n                \"miniBoardRowId\": 0,\n                \"miniBoardColId\": 0,\n                \"cellRowId\": 0,\n                \"cellColId\": 2\n            }\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "ClearFinishedGames",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/game-management/clear"
+			},
+			"response": [
+				{
+					"name": "200_Cleared",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game-management/clear"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": true\n}"
+				}
+			]
+		},
+		{
+			"name": "GetUnfinishedGames",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/metrics/unfinished-games"
+			},
+			"response": [
+				{
+					"name": "200_UnfinishedGamesCount",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/metrics/unfinished-games"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": 3\n}"
+				}
+			]
+		},
+		{
+			"name": "GetRoomsMetrics",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/metrics/rooms"
+			},
+			"response": [
+				{
+					"name": "200_RoomsMetrics",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/metrics/rooms"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"activeRegularRooms\": 2,\n    \"activePrivateRooms\": 1,\n    \"queuedTickets\": 3,\n    \"roomsCreated\": {\n        \"regular\": 10,\n        \"private\": 4\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "QueueForGame",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{userId}}"
+					}
+				],
+				"url": "{{baseUrl}}/api/rooms/queue"
+			},
+			"response": [
+				{
+					"name": "200_Queued",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{userId}}"
+							}
+						],
+						"url": "{{baseUrl}}/api/rooms/queue"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": {\n        \"ticketId\": \"{{ticketId}}\",\n        \"expiresAtUtc\": \"2030-01-01T00:00:00Z\"\n    }\n}"
+				},
+				{
+					"name": "429_Backpressure",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{userId}}"
+							}
+						],
+						"url": "{{baseUrl}}/api/rooms/queue"
+					},
+					"status": "Too Many Requests",
+					"code": 429,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": false,\n    \"code\": 429,\n    \"error\": \"Server is near capacity. Please retry shortly.\",\n    \"value\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "CancelQueue",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{userId}}"
+					}
+				],
+				"url": "{{baseUrl}}/api/rooms/queue/{{ticketId}}"
+			},
+			"response": [
+				{
+					"name": "200_Cancelled",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{userId}}"
+							}
+						],
+						"url": "{{baseUrl}}/api/rooms/queue/{{ticketId}}"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": true\n}"
+				}
+			]
+		},
+		{
+			"name": "CreatePrivateRoom",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{userId}}"
+					}
+				],
+				"url": "{{baseUrl}}/api/rooms/private"
+			},
+			"response": [
+				{
+					"name": "200_PrivateRoomCreated",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{userId}}"
+							}
+						],
+						"url": "{{baseUrl}}/api/rooms/private"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": {\n        \"roomId\": \"00000000-0000-0000-0000-000000000020\",\n        \"joinCode\": \"{{joinCode}}\",\n        \"expiresAtUtc\": \"2030-01-01T00:00:00Z\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "JoinPrivateRoom",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{userId}}"
+					}
+				],
+				"url": "{{baseUrl}}/api/rooms/private/join/{{joinCode}}"
+			},
+			"response": [
+				{
+					"name": "200_Joined",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{userId}}"
+							}
+						],
+						"url": "{{baseUrl}}/api/rooms/private/join/{{joinCode}}"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": {\n        \"gameId\": \"{{gameId}}\",\n        \"opponentUserId\": \"00000000-0000-0000-0000-000000000003\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "GetMyRoomState",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{userId}}"
+					}
+				],
+				"url": "{{baseUrl}}/api/rooms/me"
+			},
+			"response": [
+				{
+					"name": "200_MyRoomState",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{userId}}"
+							}
+						],
+						"url": "{{baseUrl}}/api/rooms/me"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"ticket\": {\n        \"ticketId\": \"{{ticketId}}\",\n        \"userId\": \"{{userId}}\",\n        \"status\": 0,\n        \"createdAtUtc\": \"2030-01-01T00:00:00Z\",\n        \"expiresAtUtc\": \"2030-01-01T00:10:00Z\",\n        \"matchedRoomId\": null,\n        \"gameId\": null\n    },\n    \"room\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "GetPrivateRoomState",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/rooms/private/{{joinCode}}"
+			},
+			"response": [
+				{
+					"name": "200_PrivateRoomState",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/rooms/private/{{joinCode}}"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"roomId\": \"00000000-0000-0000-0000-000000000020\",\n    \"type\": 1,\n    \"status\": 0,\n    \"joinCode\": \"{{joinCode}}\",\n    \"createdAtUtc\": \"2030-01-01T00:00:00Z\",\n    \"expiresAtUtc\": \"2030-01-01T00:10:00Z\",\n    \"players\": [\n        {\n            \"userId\": \"{{userId}}\",\n            \"joinedAtUtc\": \"2030-01-01T00:00:00Z\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Flows - Test Suites",
+			"item": [
+				{
+					"name": "01 Core Gameplay",
+					"description": "SignalR note: connect to /move-updates-hub and JoinGame(gameId) to receive MoveApplied/MoveRejected events.",
+					"item": [
+						{
+							"name": "StartGame (flow)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": "{{baseUrl}}/api/game/start"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"start game payload\", () => {",
+											"  pm.expect(data).to.have.property(\"isSuccess\");",
+											"  pm.expect(data).to.have.property(\"code\");",
+											"  pm.expect(data).to.have.property(\"value\");",
+											"  pm.expect(data.isSuccess).to.be.true;",
+											"  pm.expect(data.value).to.have.property(\"gameId\");",
+											"  pm.expect(data.value).to.have.property(\"playerXId\");",
+											"  pm.expect(data.value).to.have.property(\"playerOId\");",
+											"});",
+											"if (data.value) {",
+											"  pm.collectionVariables.set(\"gameId\", data.value.gameId);",
+											"  pm.collectionVariables.set(\"playerXId\", data.value.playerXId);",
+											"  pm.collectionVariables.set(\"playerOId\", data.value.playerOId);",
+											"  pm.collectionVariables.set(\"userId\", data.value.playerXId);",
+											"}"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "MakeMove (flow)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"gameId\": \"{{gameId}}\",\n    \"playerId\": \"{{playerXId}}\",\n    \"miniBoardRowId\": 0,\n    \"miniBoardColId\": 0,\n    \"cellRowId\": 1,\n    \"cellColId\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/api/game/move"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"move applied\", () => {",
+											"  pm.expect(data.isSuccess).to.be.true;",
+											"  pm.expect(data.value).to.eql(true);",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "GetMovesHistory (flow)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": "{{baseUrl}}/api/game-management/{{gameId}}/moves-history?skip=0&take=10"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"history payload\", () => {",
+											"  pm.expect(data.isSuccess).to.be.true;",
+											"  pm.expect(data.value).to.have.property(\"gameId\");",
+											"  pm.expect(data.value).to.have.property(\"moves\");",
+											"  pm.expect(data.value.moves).to.be.an(\"array\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "02 Private Room",
+					"description": "SignalR note: connect to /rooms-hub and JoinUser(X-User-Id) to receive PrivateRoomCreated/MatchFound events.",
+					"item": [
+						{
+							"name": "CreatePrivateRoom (Owner)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-User-Id",
+										"value": "{{userIdA}}"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/private"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"private room created\", () => {",
+											"  pm.expect(data.isSuccess).to.be.true;",
+											"  pm.expect(data.value).to.have.property(\"joinCode\");",
+											"});",
+											"if (data.value) {",
+											"  pm.collectionVariables.set(\"joinCode\", data.value.joinCode);",
+											"}"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "GetPrivateRoomState (by code)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/private/{{joinCode}}"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"private room payload\", () => {",
+											"  pm.expect(data).to.have.property(\"roomId\");",
+											"  pm.expect(data).to.have.property(\"joinCode\");",
+											"  pm.expect(data).to.have.property(\"players\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "JoinPrivateRoom (Joiner)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-User-Id",
+										"value": "{{userIdB}}"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/private/join/{{joinCode}}"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"private join ok\", () => {",
+											"  pm.expect(data.isSuccess).to.be.true;",
+											"  pm.expect(data.value).to.have.property(\"gameId\");",
+											"});",
+											"if (data.value) {",
+											"  pm.collectionVariables.set(\"gameId\", data.value.gameId);",
+											"}"
+										]
+									}
+								}
+							],
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "03 Regular Matchmaking",
+					"description": "SignalR note: connect to /rooms-hub and JoinUser(X-User-Id) to receive QueueJoined/MatchFound events.",
+					"item": [
+						{
+							"name": "QueueForGame (User A)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-User-Id",
+										"value": "{{userIdA}}"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/queue"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"queue user A\", () => {",
+											"  pm.expect(data.isSuccess).to.be.true;",
+											"  pm.expect(data.value).to.have.property(\"ticketId\");",
+											"});",
+											"if (data.value) {",
+											"  pm.collectionVariables.set(\"ticketId\", data.value.ticketId);",
+											"}"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "QueueForGame (User B)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-User-Id",
+										"value": "{{userIdB}}"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/queue"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"queue user B\", () => {",
+											"  pm.expect(data.isSuccess).to.be.true;",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "GetMyRoomState (User A)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-User-Id",
+										"value": "{{userIdA}}"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/me"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"room state payload\", () => {",
+											"  pm.expect(data).to.have.property(\"ticket\");",
+											"  pm.expect(data).to.have.property(\"room\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "GetMyRoomState (User B)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-User-Id",
+										"value": "{{userIdB}}"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/me"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"room state payload\", () => {",
+											"  pm.expect(data).to.have.property(\"ticket\");",
+											"  pm.expect(data).to.have.property(\"room\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "04 Room State Checks",
+					"item": [
+						{
+							"name": "GetMyRoomState (User A)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-User-Id",
+										"value": "{{userIdA}}"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/me"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"room state payload\", () => {",
+											"  pm.expect(data).to.have.property(\"ticket\");",
+											"  pm.expect(data).to.have.property(\"room\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "GetPrivateRoomState (JoinCode)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": "{{baseUrl}}/api/rooms/private/{{joinCode}}"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"private room payload\", () => {",
+											"  pm.expect(data).to.have.property(\"roomId\");",
+											"  pm.expect(data).to.have.property(\"joinCode\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "05 Metrics & Health",
+					"item": [
+						{
+							"name": "GetUnfinishedGames",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": "{{baseUrl}}/api/metrics/unfinished-games"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"metrics payload\", () => {",
+											"  pm.expect(data).to.have.property(\"isSuccess\");",
+											"  pm.expect(data).to.have.property(\"value\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "GetRoomsMetrics",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": "{{baseUrl}}/api/metrics/rooms"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"const data = pm.response.json();",
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"pm.test(\"rooms metrics payload\", () => {",
+											"  pm.expect(data).to.have.property(\"activeRegularRooms\");",
+											"  pm.expect(data).to.have.property(\"activePrivateRooms\");",
+											"  pm.expect(data).to.have.property(\"queuedTickets\");",
+											"  pm.expect(data).to.have.property(\"roomsCreated\");",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Health Live",
+							"request": {
+								"method": "GET",
+								"url": "{{baseUrl}}/health/live"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Health Ready",
+							"request": {
+								"method": "GET",
+								"url": "{{baseUrl}}/health/ready"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Health All",
+							"request": {
+								"method": "GET",
+								"url": "{{baseUrl}}/health"
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.test(\"status 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});"
+										]
+									}
+								}
+							],
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

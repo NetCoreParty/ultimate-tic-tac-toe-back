@@ -134,6 +134,10 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 - [x] Health checks (including Mongo connectivity)
 - [ ] Rate limiting / throttling (beyond current backpressure)
 
+### 🔐 Security & Secrets
+
+- [ ] Secrets management with .dotnet-sops (encrypted `appsettings.*.json` + production decryption extensions)
+
 ### 🎮 Frontend / UI
 
 #### Frontend (Vue3 + Vite + TypeScript + Vuetify)
@@ -183,7 +187,7 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 
 - [x] Core integration test project: tests are discovered and runnable
 - [x] Storage integration tests (Mongo event store)
-- [ ] Load testing for high concurrency
+- [ ] Load testing for high concurrency (Grafana k6)
 
 ---
 

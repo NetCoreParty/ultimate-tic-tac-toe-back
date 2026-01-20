@@ -1,0 +1,6 @@
+creation_rules:
+  - path_regex: "^secrets/appsettings\\.Production\\.secrets\\.json$"
+    # Replace with your own key provider(s): age, pgp, kms, azure_kv, gcp_kms, etc.
+    # Example: age: "age1yourrecipienthere"
+    age: "age1replacewithyourrecipient"
+    encrypted_regex: "^(EventStoreSettings|Jwt|CorsSettings|HealthChecks|GameplaySettings|RoomSettings|RoomsSweepSettings)$"

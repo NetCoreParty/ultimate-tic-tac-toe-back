@@ -16,6 +16,7 @@ using UltimateTicTacToe.Core.Features.GameSaving;
 using UltimateTicTacToe.API.Health;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using UltimateTicTacToe.API.Middleware;
+using UltimateTicTacToe.API.Extensions;
 
 namespace UltimateTicTacToe.API;
 
@@ -24,6 +25,9 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        // Encrypted secrets (SOPS) are loaded only for non-Development environments.
+        builder.Configuration.AddEnvironmentSecrets(builder.Environment);
 
         #region Games Repository
 
@@ -55,7 +59,15 @@ public class Program
         builder.Services.AddSingleton<IMongoDatabase>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<EventStoreSettings>>().Value;
-            var client = new MongoClient(settings.ConnectionString);
+            var connectionString = settings.ConnectionString;
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                var login = settings.Login ?? string.Empty;
+                var password = settings.Password ?? string.Empty;
+                var host = settings.Host ?? string.Empty;
+                connectionString = $"mongodb://{login}:{password}@{host}";
+            }
+            var client = new MongoClient(connectionString);
             return client.GetDatabase(settings.DatabaseName);
         });
         builder.Services.AddTransient<IEventStore, MongoEventStore>();
