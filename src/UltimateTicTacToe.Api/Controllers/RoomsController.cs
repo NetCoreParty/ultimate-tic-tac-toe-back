@@ -107,4 +107,3 @@ public class RoomsController : ControllerBase
         return UltimateTicTacToe.Core.Result<Guid>.Success(userId);
     }
 }
-

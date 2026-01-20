@@ -409,3 +409,4 @@ FodyWeavers.xsd
 **/.idea/
 *.DotSettings.user
 /deploy/mongo-data
+/coverage-report
