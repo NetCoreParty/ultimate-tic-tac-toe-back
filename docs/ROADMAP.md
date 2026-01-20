@@ -26,8 +26,7 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 
 ## 🔄 In Progress
 
-- [ ] HTTP middleware for trace correlation
-- [ ] HTTP middleware for CORS security
+- [ ] HTTP middleware for CORS security (allowlist origins, no wildcard with credentials)
 - [ ] Basic game UI (Vue3) for local play
 
 - [ ] 2. HTTP Endpoint for Initial Move History (With Pagination) - Great for loading full or partial history when the game starts or when reconnecting
@@ -52,6 +51,15 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [ ] RESTful API documentation (Swagger/OpenAPI)
 - [ ] Health check & metrics endpoint (GamesNow, memory usage)
 - [ ] Rate limiting / throttling
+
+### 🔐 Security & Auth
+
+- [ ] JWT auth with short-lived access tokens + refresh tokens (rotation + revocation)
+- [ ] AuthZ policies: only game participants can make moves and access history
+- [ ] Guest-player flow: signed invite link -> backend exchanges for guest tokens
+- [ ] Required request headers contract (Authorization, X-Request-Id, X-Game-Id for move/mgmt endpoints)
+- [ ] CORS hardening (origin allowlist, preflight caching, strict methods/headers)
+- [ ] Production secrets: dotnet-sops encrypted `appsettings.*.json` + decryption extensions in production
 
 ### 🎮 Frontend / UI
 

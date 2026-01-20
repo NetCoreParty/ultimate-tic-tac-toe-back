@@ -25,7 +25,7 @@ public class MongoEventStoreTests : IClassFixture<MongoDbFixture>, IAsyncLifetim
     {
         var settings = Options.Create(new EventStoreSettings
         {
-            ConnectionString = fixture.Runner.ConnectionString,
+            ConnectionString = fixture.ConnectionString,
             DatabaseName = fixture.DatabaseName,
             EventsCollectionName = fixture.CollectionName
         });

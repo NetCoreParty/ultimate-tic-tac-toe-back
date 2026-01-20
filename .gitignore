@@ -399,4 +399,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-/deploy/mongo-data
+
+deploy/*
+!deploy/docker-compose.yaml
+/coverage-report

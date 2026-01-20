@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34902.65
@@ -30,7 +30,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{D83A1A69-1
 		docs\ROADMAP.md = docs\ROADMAP.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimateTicTacToe.Core.Tests.Integration", "tests\UltimateTicTacToe.Core.Tests.Integration\UltimateTicTacToe.Core.Tests.Integration.csproj", "{78B420D4-C46E-4408-826D-56D8772583D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.Core.Tests.Integration", "tests\UltimateTicTacToe.Core.Tests.Integration\UltimateTicTacToe.Core.Tests.Integration.csproj", "{78B420D4-C46E-4408-826D-56D8772583D6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimateTicTacToe.API.Tests.Integration", "tests\UltimateTicTacToe.API.Tests.Integration\UltimateTicTacToe.API.Tests.Integration.csproj", "{CFD22335-1216-421C-B11C-5508DCB29330}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{AE18C63F-E3E0-4352-B1D1-FF36E1BE0C34}"
+	ProjectSection(SolutionItems) = preProject
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +72,10 @@ Global
 		{78B420D4-C46E-4408-826D-56D8772583D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78B420D4-C46E-4408-826D-56D8772583D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78B420D4-C46E-4408-826D-56D8772583D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFD22335-1216-421C-B11C-5508DCB29330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFD22335-1216-421C-B11C-5508DCB29330}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFD22335-1216-421C-B11C-5508DCB29330}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFD22335-1216-421C-B11C-5508DCB29330}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +88,7 @@ Global
 		{ACCA9C71-1DF9-4413-BF21-906B6342FFE3} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 		{E6E4F050-2997-46B7-B8A0-BF14B7B58B10} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 		{78B420D4-C46E-4408-826D-56D8772583D6} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
+		{CFD22335-1216-421C-B11C-5508DCB29330} = {0BB69303-BCFD-4543-97C8-6F2018AC350A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB02C1B5-2F7A-4CA3-9D74-8DE5B170EF25}

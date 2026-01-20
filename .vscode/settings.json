@@ -1,0 +1,9 @@
+{
+    "dotnet.defaultSolution": "UltimateTicTacToe.sln",
+    "editor.formatOnSave": true,
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true
+    },
+    "csharp.format.enable": true
+}

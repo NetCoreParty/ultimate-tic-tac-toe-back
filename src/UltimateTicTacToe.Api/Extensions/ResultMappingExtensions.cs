@@ -3,7 +3,7 @@ using UltimateTicTacToe.Core;
 
 namespace UltimateTicTacToe.API.Extensions;
 
-public static class ResultExtensions
+public static class ResultMappingExtensions
 {
     public static IActionResult ToActionResult<T>(this Result<T> result)
     {

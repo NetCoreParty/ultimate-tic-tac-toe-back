@@ -1,0 +1,319 @@
+{
+	"info": {
+		"_postman_id": "93886589-773e-4a90-8895-f5b416b6536b",
+		"name": "ultimate-tic-tac-toe-back",
+		"description": "Backend API for Ultimate Tic Tac Toe. Endpoints are under /api with Result<T> response wrapper. Uses collection variable {{baseUrl}}.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11563337"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7197"
+		},
+		{
+			"key": "baseUrlHttp",
+			"value": "http://localhost:5094"
+		}
+	],
+	"item": [
+		{
+			"name": "StartGame",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{baseUrl}}/api/game/start"
+			},
+			"response": [
+				{
+					"name": "200_GameStarted",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game/start"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": {\n        \"gameId\": \"00000000-0000-0000-0000-000000000001\",\n        \"playerXId\": \"00000000-0000-0000-0000-000000000002\",\n        \"playerOId\": \"00000000-0000-0000-0000-000000000003\",\n        \"gameState\": \"IN_PROGRESS\"\n    }\n}"
+				},
+				{
+					"name": "429_TooManyGames",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game/start"
+					},
+					"status": "Too Many Requests",
+					"code": 429,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": false,\n    \"code\": 429,\n    \"error\": \"Please try later. Too many parallel games in memory.\",\n    \"value\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "MakeMove",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gameId\": \"00000000-0000-0000-0000-000000000001\",\n    \"playerId\": \"00000000-0000-0000-0000-000000000002\",\n    \"miniBoardRowId\": 0,\n    \"miniBoardColId\": 0,\n    \"cellRowId\": 1,\n    \"cellColId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/game/move"
+				}
+			},
+			"response": [
+				{
+					"name": "200_MoveApplied",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"00000000-0000-0000-0000-000000000001\",\n    \"playerId\": \"00000000-0000-0000-0000-000000000002\",\n    \"miniBoardRowId\": 0,\n    \"miniBoardColId\": 0,\n    \"cellRowId\": 1,\n    \"cellColId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/game/move"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": true\n}"
+				},
+				{
+					"name": "404_GameNotFound",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"00000000-0000-0000-0000-000000000001\",\n    \"playerId\": \"00000000-0000-0000-0000-000000000002\",\n    \"miniBoardRowId\": 0,\n    \"miniBoardColId\": 0,\n    \"cellRowId\": 1,\n    \"cellColId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/game/move"
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": false,\n    \"code\": 404,\n    \"error\": \"Game with ID 00000000-0000-0000-0000-000000000001 not found.\",\n    \"value\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "GetMovesHistory",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/game-management/00000000-0000-0000-0000-000000000001/moves-history?skip=0&take=10"
+			},
+			"response": [
+				{
+					"name": "200_MovesHistory",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game-management/00000000-0000-0000-0000-000000000001/moves-history?skip=0&take=10"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": {\n        \"gameId\": \"00000000-0000-0000-0000-000000000001\",\n        \"moves\": [\n            {\n                \"playerId\": \"00000000-0000-0000-0000-000000000002\",\n                \"moveId\": 1,\n                \"miniBoardRowId\": 0,\n                \"miniBoardColId\": 0,\n                \"cellRowId\": 1,\n                \"cellColId\": 1\n            },\n            {\n                \"playerId\": \"00000000-0000-0000-0000-000000000003\",\n                \"moveId\": 2,\n                \"miniBoardRowId\": 0,\n                \"miniBoardColId\": 0,\n                \"cellRowId\": 0,\n                \"cellColId\": 2\n            }\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "ClearFinishedGames",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/game-management/clear"
+			},
+			"response": [
+				{
+					"name": "200_Cleared",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/game-management/clear"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": true\n}"
+				}
+			]
+		},
+		{
+			"name": "GetUnfinishedGames",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": "{{baseUrl}}/api/metrics/unfinished-games"
+			},
+			"response": [
+				{
+					"name": "200_UnfinishedGamesCount",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": "{{baseUrl}}/api/metrics/unfinished-games"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"isSuccess\": true,\n    \"code\": 200,\n    \"error\": null,\n    \"value\": 3\n}"
+				}
+			]
+		}
+	]
+}

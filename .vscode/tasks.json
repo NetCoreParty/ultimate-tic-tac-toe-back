@@ -1,0 +1,78 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/UltimateTicTacToe.Api/UltimateTicTacToe.Api.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test-with-coverage",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "--collect:\"XPlat Code Coverage\""
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "generate-html-report",
+      "type": "shell",
+      "command": "reportgenerator",
+      "args": [
+        "-reports:**/coverage.cobertura.xml",
+        "-targetdir:coverage-report",
+        "-reporttypes:Html"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "open-coverage-report",
+      "type": "shell",
+      "command": "${openCommand}",
+      "args": [
+        "coverage-report/index.html"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "run-full-coverage-workflow",
+      "dependsOn": [
+        "test-with-coverage",
+        "generate-html-report",
+        "open-coverage-report"
+      ],
+      "dependsOrder": "sequence"
+    }
+    // {
+    //   "label": "test-with-coverage",
+    //   "command": "dotnet",
+    //   "type": "process",
+    //   "args": [
+    //     "test",
+    //     "--collect:\"XPlat Code Coverage\""
+    //   ],
+    //   "problemMatcher": []
+    // },
+    // {
+    //   "label": "generate-html-report",
+    //   "command": "reportgenerator",
+    //   "type": "process",
+    //   "args": [
+    //     "-reports:**/coverage.cobertura.xml",
+    //     "-targetdir:coverage-report",
+    //     "-reporttypes:Html"
+    //   ],
+    //   "problemMatcher": []
+    // }
+  ]
+}

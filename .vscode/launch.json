@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Debug (API)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/UltimateTicTacToe.Api/bin/Debug/net7.0/UltimateTicTacToe.API.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/UltimateTicTacToe.Api/bin/Debug/net7.0",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/swagger/index.html"
+            }
+        }
+    ]
+}

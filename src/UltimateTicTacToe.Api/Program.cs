@@ -18,6 +18,12 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Configuration
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables();
+
         #region Games Repository
 
         builder.Services.Configure<GameplaySettings>(builder.Configuration.GetSection("GameplaySettings"));
@@ -64,7 +70,7 @@ public class Program
                 policy
                     .WithOrigins(corsConfig.AllowedOrigins.ToArray())
                     .WithMethods("GET", "POST", "DELETE")
-                    .WithHeaders("Content-Type", "Authorization", "X-User-Id", "X-Ultimate-TTT-Header")
+                    .WithHeaders("Content-Type", "Authorization", "X-User-Id", "X-Game-Id")
                     .AllowCredentials()); // Only if you're using cookies or auth
         });
 
