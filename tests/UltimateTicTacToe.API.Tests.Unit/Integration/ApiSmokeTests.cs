@@ -43,31 +43,18 @@ public class ApiSmokeTests
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Development");
-
-            builder.ConfigureAppConfiguration((_, config) =>
-            {
-                // Keep API tests independent of a running Mongo instance.
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["HealthChecks:MongoEnabled"] = "false"
-                });
-            });
+            builder.UseEnvironment("Testing");
 
             builder.ConfigureServices(services =>
             {
-                // Prevent Mongo hosted services from running in tests.
                 services.RemoveAll<IHostedService>();
 
-                // Use in-memory event store for API smoke tests.
                 services.RemoveAll<IEventStore>();
                 services.AddSingleton<IEventStore>(_eventStore);
 
-                // Use in-memory snapshots for tests (Mongo snapshots are covered in storage integration tests).
                 services.RemoveAll<IStateSnapshotStore>();
                 services.AddSingleton(_snapshots);
 
-                // Use in-memory rooms/tickets so tests don't require Mongo.
                 services.RemoveAll<IRoomStore>();
                 services.RemoveAll<IMatchmakingTicketStore>();
                 services.RemoveAll<IRoomMetricsStore>();
@@ -77,6 +64,14 @@ public class ApiSmokeTests
             });
         }
     }
+
+    private static ApiFactory CreateDefaultFactory() =>
+        new(
+            new InMemoryEventStore(),
+            new StateSnapshotStore(),
+            new InMemoryRoomStore(),
+            new InMemoryMatchmakingTicketStore(),
+            new InMemoryRoomMetricsStore());
 
     [Fact]
     public async Task StartMoveAndMovesHistory_ShouldWork_EndToEnd()
@@ -412,35 +407,29 @@ public class ApiSmokeTests
     }
 
     [Fact]
-    public async Task HealthEndpoints_ShouldReturn_200()
+    public async Task HealthEndpoints_ShouldReturn_Json()
     {
-        var store = new InMemoryEventStore();
-        var snapshots = new StateSnapshotStore();
-        var rooms = new InMemoryRoomStore();
-        var tickets = new InMemoryMatchmakingTicketStore();
-        var metrics = new InMemoryRoomMetricsStore();
-
-        await using var factory = new ApiFactory(store, snapshots, rooms, tickets, metrics);
+        await using var factory = CreateDefaultFactory();
         var client = factory.CreateClient();
 
         var live = await client.GetAsync("/health/live");
         Assert.True(live.IsSuccessStatusCode);
+        Assert.Equal("application/json", live.Content.Headers.ContentType?.MediaType);
+        var liveDoc = await live.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Healthy", liveDoc.GetProperty("status").GetString());
+        Assert.True(liveDoc.GetProperty("checks").TryGetProperty("live", out _));
 
-        // Mongo check is disabled in the test host config.
         var ready = await client.GetAsync("/health/ready");
         Assert.True(ready.IsSuccessStatusCode);
+        var readyDoc = await ready.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Healthy", readyDoc.GetProperty("status").GetString());
+        Assert.False(readyDoc.GetProperty("checks").TryGetProperty("mongo", out _));
     }
 
     [Fact]
     public async Task CorrelationIdHeader_ShouldBeEchoedOrGenerated()
     {
-        var store = new InMemoryEventStore();
-        var snapshots = new StateSnapshotStore();
-        var rooms = new InMemoryRoomStore();
-        var tickets = new InMemoryMatchmakingTicketStore();
-        var metrics = new InMemoryRoomMetricsStore();
-
-        await using var factory = new ApiFactory(store, snapshots, rooms, tickets, metrics);
+        await using var factory = CreateDefaultFactory();
         var client = factory.CreateClient();
 
         // Echo provided

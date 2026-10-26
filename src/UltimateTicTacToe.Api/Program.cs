@@ -118,7 +118,6 @@ public class Program
 
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseCors(corsConfig.PolicyName);
-        app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthorization();
 
@@ -128,9 +127,21 @@ public class Program
         app.MapHub<RoomsHub>("/rooms-hub")
             .RequireCors(corsConfig.PolicyName);
 
-        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = r => r.Name == "live" });
-        app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = r => r.Name != "live" });
-        app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => true });
+        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = r => r.Name == "live",
+            ResponseWriter = HealthCheckJsonWriter.WriteResponse
+        });
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = r => r.Name != "live",
+            ResponseWriter = HealthCheckJsonWriter.WriteResponse
+        });
+        app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            Predicate = _ => true,
+            ResponseWriter = HealthCheckJsonWriter.WriteResponse
+        });
 
         app.MapControllers();
 
