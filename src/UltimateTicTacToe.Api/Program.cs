@@ -87,8 +87,8 @@ public class Program
                 policy
                     .WithOrigins(corsConfig.AllowedOrigins.ToArray())
                     .WithMethods("GET", "POST", "DELETE")
-                    .WithHeaders("Content-Type", "Authorization", "X-User-Id", "X-Ultimate-TTT-Header")
-                    .AllowCredentials()); // Only if you're using cookies or auth
+                    .WithHeaders("Content-Type", "Authorization", "X-User-Id", "X-Correlation-Id", "X-Ultimate-TTT-Header")
+                    .AllowCredentials());
         });
 
         #endregion

@@ -8,6 +8,10 @@ This document describes the primary frontend user flows and how they map to back
 - Game hub: `/move-updates-hub`
 - Rooms hub: `/rooms-hub`
 
+## Ops probes
+- Deploy / ALB liveness: `GET /health/live` (JSON `{ status, checks }`, no descriptions).
+- Readiness (Mongo when `HealthChecks:MongoEnabled`): `GET /health/ready`.
+
 ## Start game and play moves
 
 ```mermaid
@@ -118,7 +122,7 @@ sequenceDiagram
   participant Api
 
   Note over Api: threshold = ceil(MaxActiveGames * BackpressureThresholdPercent / 100)
-  Client->>Api: POST /api/rooms/queue or /api/rooms/private
+  Client->>Api: POST /api/rooms/queue or /api/rooms/private or /api/rooms/private/join/{joinCode} (also POST /api/game/start)
   Api-->>Client: 429 TooManyRequests (Result<T> with Code=429)
   Note over Client: Client should show "Server busy, retry" and allow retry/backoff
 ```

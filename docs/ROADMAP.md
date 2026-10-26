@@ -1,10 +1,10 @@
-﻿# 🛣️ Ultimate Tic Tac Toe Game Roadmap
+﻿# Ultimate Tic Tac Toe Game Roadmap
 
 This roadmap outlines the planned development and milestones for the Ultimate Tic Tac Toe game project.
 
 ---
 
-## ✅ Completed
+## Completed
 
 - [x] Core domain model (`GameRoot`, `Board`, `Cell`)
 - [x] In-memory `IGameRepository` (basic start game + make move)
@@ -20,31 +20,34 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] API docs via **OpenAPI + Scalar** (development only)
 - [x] Coverage report generation (`coverlet` + `reportgenerator`) + gitignore for artifacts
 - [x] Local dev Docker dependencies for Mongo (Docker Compose + Rider-friendly scripts)
-- [x] 1. HTTP Endpoint for Sending Moves to Server - Use this to accept new moves from the frontend
-- [x] 3. WebSocket Hub for keeping up with Real-Time server's updates
+- [x] HTTP Endpoint for Sending Moves to Server
+- [x] HTTP Endpoint for Initial Move History (With Pagination)
+- [x] WebSocket Hub for keeping up with Real-Time server's updates
 - [x] Snapshotting mechanism wired end-to-end (repo uses snapshots + clears uncommitted changes)
 - [x] Event persistence + replay wired end-to-end (repo appends events, rehydrates on demand)
 - [x] Integration tests for controller/API surface (basic API smoke tests)
-- [ ] Property-based testing for game logic
 - [x] Rooms + matchmaking (Regular/Private) + TTL + metrics + expiry notifications
 - [x] Rooms read endpoints (`GET /api/rooms/me`, `GET /api/rooms/private/{joinCode}`)
 - [x] Capacity backpressure (429) for new admissions near `MaxActiveGames` + documented in README
-- [x] Health checks (`/health/live`, `/health/ready`) + optional Mongo ping (configurable)
+- [x] Health checks (`/health/live`, `/health/ready`, `/health`) + optional Mongo ping (configurable)
+- [x] JSON health responses (`HealthCheckJsonWriter`: status + check statuses, no descriptions)
 - [x] Correlation id middleware (`X-Correlation-Id`) + logging scope propagation
+- [x] CORS policy: origins (+ policy name) from `CorsSettings`; methods/headers/`AllowCredentials` hardcoded in `Program.cs`
+- [x] Testing + Production appsettings overlays; shared gameplay/room defaults in base `appsettings.json`
+- [x] Container listens on **8080** (Dockerfile + Container launch profile aligned)
 
 ---
 
-## 🔄 In Progress
+## In Progress
 
-- [ ] HTTP middleware for CORS security
 - [ ] Basic game UI (Vue3) for local play
+- [ ] Property-based testing for game logic
 
-- [x] 2. HTTP Endpoint for Initial Move History (With Pagination) - Great for loading full or partial history when the game starts or when reconnecting
 ---
 
-## 💡 Suggested Next Steps (Agent Review)
+## Suggested Next Steps (Agent Review)
 
-These are my recommendations based on the current repo state (API/Core/Storage/tests) and what’s most likely to unblock the next features.
+These are recommendations based on the current repo state (API/Core/Storage/tests) and what’s most likely to unblock the next features.
 
 ### P0 (Next sprint / unblockers)
 
@@ -92,13 +95,14 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
 - [x] Add health checks + basic operational endpoints
   - DoD:
     - Health check verifies Mongo connectivity (when enabled)
-    - Metrics include active games, per-endpoint counts/latency (minimal)
+    - Metrics include unfinished-games count + rooms/queue counters (count-only; no per-endpoint latency yet)
+- [ ] Per-endpoint metrics / latency histograms (beyond current count endpoints)
 
 - [x] Trace correlation middleware
   - DoD:
     - Adds/propagates correlation id across logs and responses
 
-## ⚠️ Tech Debt / Risks (Agent Notes)
+## Tech Debt / Risks (Agent Notes)
 
 - [x] `SemaphoreSlim` timeout handling in `InMemoryGameRepository`
   - Note: Ensure `Release()` only happens when `WaitAsync(...)` acquired the semaphore.
@@ -113,28 +117,28 @@ These are my recommendations based on the current repo state (API/Core/Storage/t
   - Risk: TTL deletion timing is not exact; client UX can be confusing if a room “hangs” until TTL cleans up.
   - Mitigation: keep the expiry sweeper (configurable interval + batch) and treat notifications as best-effort.
 
-## 📝 Planned Features
+## Planned Features
 
-### 📦 Persistence
+### Persistence
 
-- [ ] Implement event sourcing and replay in `IGameRepository`
-- [ ] Store and retrieve snapshots for `GameRoot`
+- [x] Implement event sourcing and replay in `IGameRepository`
+- [x] Store and retrieve snapshots for `GameRoot`
 - [ ] Implement game archive for finished games
 
-### 🧠 Game Mechanics
+### Game Mechanics
 
 - [ ] AI player mode (difficulty levels)
 - [ ] Timer-based turn control (timeouts, forfeits)
 - [ ] Game validation service (enforce move rules externally)
 
-### 🌐 API & Monitoring
+### API & Monitoring
 
 - [x] RESTful API documentation (OpenAPI + Scalar in Development)
 - [x] Metrics endpoints (games now + rooms)
 - [x] Health checks (including Mongo connectivity)
 - [ ] Rate limiting / throttling (beyond current backpressure)
 
-### 🎮 Frontend / UI
+### Frontend / UI
 
 #### Frontend (Vue3 + Vite + TypeScript + Vuetify)
 
@@ -171,7 +175,7 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 - [ ] Multiplayer session management
 - [ ] Spectator view
 
-### 📊 Analytics
+### Analytics
 
 - [ ] Track game durations, player stats
 - [ ] Leaderboard and win history
@@ -179,7 +183,7 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 
 ---
 
-## 🧪 Testing
+## Testing
 
 - [x] Core integration test project: tests are discovered and runnable
 - [x] Storage integration tests (Mongo event store)
@@ -187,7 +191,7 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 
 ---
 
-## 🧩 Nice to Have
+## Nice to Have
 
 - [ ] Game replays and visualizations
 - [ ] Tournament / matchmaking system
@@ -196,7 +200,7 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 
 ---
 
-## 📅 Milestones
+## Milestones
 
 | Version | Target Date | Features									|
 |--------:|-------------|------------------------------------------	|
@@ -209,7 +213,7 @@ Milestone sequencing suggestion:
 
 ---
 
-## 📌 Notes
+## Notes
 
 - Priorities may shift as project evolves.
 - Contributions, ideas, and feedback are welcome!
