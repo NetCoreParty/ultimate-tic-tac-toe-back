@@ -2,6 +2,8 @@
 
 This roadmap outlines the planned development and milestones for the Ultimate Tic Tac Toe game project.
 
+Sibling frontend: `ultimate-tic-tac-toe-front` (live lobby/rooms wired; Game page still mock). See [../ultimate-tic-tac-toe-front/ROADMAP.md](../../ultimate-tic-tac-toe-front/ROADMAP.md) when working from a monorepo checkout, or the front repo `ROADMAP.md`.
+
 ---
 
 ## Completed
@@ -35,13 +37,14 @@ This roadmap outlines the planned development and milestones for the Ultimate Ti
 - [x] CORS policy: origins (+ policy name) from `CorsSettings`; methods/headers/`AllowCredentials` hardcoded in `Program.cs`
 - [x] Testing + Production appsettings overlays; shared gameplay/room defaults in base `appsettings.json`
 - [x] Container listens on **8080** (Dockerfile + Container launch profile aligned)
+- [x] `DELETE /api/game-management/clear` — clears finished games from memory only (events retained)
+- [x] Production pairing path is rooms matchmaking → `TryStartGameForPlayersAsync`; legacy `POST /api/game/start` still creates ephemeral player IDs
 
 ---
 
 ## In Progress
 
-- [ ] Basic game UI (Vue3) for local play
-- [ ] Property-based testing for game logic
+_(none — next shared work is front Game page live path / move hub; see Frontend P1)_
 
 ---
 
@@ -138,29 +141,62 @@ These are recommendations based on the current repo state (API/Core/Storage/test
 - [x] Health checks (including Mongo connectivity)
 - [ ] Rate limiting / throttling (beyond current backpressure)
 
+### Ops / Data seeding
+
+Maintainable **data spawner** so Compose / AWS (or any deployed env) can be seeded without hand-editing Mongo.
+
+- [ ] Versioned seed profiles (e.g. `dev`, `demo`, `load-test`) checked into repo — idempotent, documented, easy to extend
+  - DoD: seeds rooms/tickets/metrics fixtures and/or finished-game event streams; safe to re-run (upsert / clear-then-seed flags)
+- [ ] Headless runner usable from Compose & cloud
+  - DoD: `dotnet run` / container entry (`seed` job or one-shot service) reads Mongo connection from env (`EventStoreSettings` / secrets); exit non-zero on failure; logs what was written
+- [ ] Wire into local Compose (optional profile / service) and document AWS/ECS one-shot task equivalent in README
+- [ ] Admin seed dashboard (ops UI): enter/confirm Mongo connection (or use app config), pick seed profile, **Seed** / **Clear+Seed** button, show last run result
+  - DoD: gated to Development / explicit `Seeding:Enabled` + auth (not exposed on public prod by default); never logs full credentials; works against the same stores the API uses
+
+### Feature toggles & A/B testing
+
+Ship changes behind flags and run controlled experiments without redeploying for every UX/API variant.
+
+- [ ] Feature-toggle service (config + optional Mongo/store) with typed flag keys
+  - DoD: boolean / percentage / allow-list targeting; env overlays (Development/Testing/Production); cached reads with short TTL; kill-switch for risky paths (rooms, SignalR payloads, new move contract)
+- [ ] `GET /api/features` (or embed in bootstrap) returning effective flags for `X-User-Id` / anonymous
+  - DoD: stable assignment for a user across requests; documented in USER_FLOWS + Scalar
+- [ ] Gate new backend behaviors behind flags (e.g. richer move payload, rate limiting, archive writes) — default off in prod until validated
+- [ ] A/B experiment framework on top of toggles
+  - DoD: named experiments with variants (A/B/…), sticky bucketing by user id, traffic split config, exposure event logged (correlation id + experiment + variant)
+- [ ] Ops UI or admin endpoints to create/update flags & experiments (auth-gated); audit who changed what
+- [ ] Metrics: per-flag evaluation counts; per-experiment conversion hooks (match started, game finished) for later analytics
+
 ### Frontend / UI
 
-#### Frontend (Vue3 + Vite + TypeScript + Vuetify)
+#### Frontend (Vue3 + Vite + TypeScript + Pinia + custom SCSS)
 
-Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
+Lives in sibling repo **`ultimate-tic-tac-toe-front`** (not under this repo’s `frontend/`). Lobby live wiring shipped; Game page still mock (P1).
 
-**P0 (Next sprint / unblockers)**
-- [ ] Scaffold `frontend/` Vue3+Vite+TS app + `vue-router` + `pinia` + **Vuetify**
-  - DoD: `npm run dev` starts, routing works, lint/format configured
-- [ ] API client wrapper (frontend)
+Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md) · Front roadmap: sibling `ROADMAP.md`
+
+**Shipped in front**
+- [x] Vue3 + Vite + TS + Vue Router + Pinia + Axios + custom SCSS themes
+- [x] Routes: Auth, Matchmaking, Game (+ HelloAws)
+- [x] Client-side Ultimate TTT rules + matchmaking hub UI
+- [x] Dev CORS includes Vite `http://localhost:5173`
+
+**P0 — wire front to this API (lobby)**
+- [x] API client live path for Auth + Matchmaking
   - DoD:
     - Sends `X-User-Id` on every request (persisted in local storage)
     - Propagates `X-Correlation-Id` for tracing
     - Normalizes `Result<T>` + HTTP codes (400/403/409/429)
-- [ ] Lobby + Rooms flow (pre-game)
+- [x] Lobby + Rooms flow (pre-game)
   - DoD:
     - Lobby: “Play (queue)”, “Create private room”, “Join private room”
     - SignalR `/rooms-hub`: `JoinUser`, handle `QueueJoined`, `MatchFound`, `PrivateRoomCreated`, `QueueExpired`, `RoomExpired`
-    - Restore on refresh using `GET /api/rooms/me`; validate join link via `GET /api/rooms/private/{joinCode}`
+    - Restore on refresh using `GET /api/rooms/me`
     - Backpressure UX: clear 429 message + retry/backoff
+  - Note: `GET /api/rooms/private/{joinCode}` client exists; deeper join-link UX still open
 
 **P1 (Gameplay UI)**
-- [ ] Game page `/game/:gameId`
+- [ ] Game page `/game/:gameId` live path
   - DoD:
     - History load: `GET /api/game-management/{gameId}/moves-history?skip&take`
     - Realtime: connect `/move-updates-hub`, join game group, apply updates
@@ -187,6 +223,7 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 
 - [x] Core integration test project: tests are discovered and runnable
 - [x] Storage integration tests (Mongo event store)
+- [ ] Property-based testing for game logic
 - [ ] Load testing for high concurrency
 
 ---
@@ -194,7 +231,7 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 ## Nice to Have
 
 - [ ] Game replays and visualizations
-- [ ] Tournament / matchmaking system
+- [ ] Tournament brackets (rooms matchmaking already shipped)
 - [ ] Internationalization support
 - [ ] Mobile-optimized UI
 
@@ -202,14 +239,14 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 
 ## Milestones
 
-| Version | Target Date | Features									|
-|--------:|-------------|------------------------------------------	|
-| `v0.1`  | 06.2025     | MVP with local memory & basic HTTP API	|
-| `v0.2`  | 07.2025     | Persistence layer, replay, and monitoring |
-| `v1.0`  | 10.2025     | Public release with UI and multiplayer	|
+| Version | Target Date | Status / Features |
+|--------:|-------------|-------------------|
+| `v0.1`  | 06.2025     | **Shipped** — MVP with local memory & basic HTTP API |
+| `v0.2`  | 07.2025     | **Shipped** — Persistence, replay, rooms/matchmaking, monitoring |
+| `v1.0`  | 06.2026     | Public release with live UI + multiplayer (front still mock-first) |
 
 Milestone sequencing suggestion:
-- `v0.2`: persistence (append + replay) → moves history endpoint → reconnect flow (snapshot optional but recommended)
+- `v1.0`: front live rooms/game HTTP + SignalR → richer move payload → E2E smoke → Docker FE
 
 ---
 
