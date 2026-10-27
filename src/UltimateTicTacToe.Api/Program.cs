@@ -86,8 +86,15 @@ public class Program
             options.AddPolicy(corsConfig.PolicyName, policy =>
                 policy
                     .WithOrigins(corsConfig.AllowedOrigins.ToArray())
-                    .WithMethods("GET", "POST", "DELETE")
-                    .WithHeaders("Content-Type", "Authorization", "X-User-Id", "X-Correlation-Id", "X-Ultimate-TTT-Header")
+                    .WithMethods("GET", "POST", "DELETE", "OPTIONS")
+                    .WithHeaders(
+                        "Content-Type",
+                        "Authorization",
+                        "X-User-Id",
+                        "X-Correlation-Id",
+                        "X-Ultimate-TTT-Header",
+                        "X-Requested-With",
+                        "X-SignalR-User-Agent")
                     .AllowCredentials());
         });
 
@@ -116,9 +123,10 @@ public class Program
             app.UseDeveloperExceptionPage();
         }
 
+        // CORS must run after UseRouting and before endpoints so RequireCors on hubs works.
         app.UseMiddleware<CorrelationIdMiddleware>();
-        app.UseCors(corsConfig.PolicyName);
         app.UseRouting();
+        app.UseCors(corsConfig.PolicyName);
         app.UseAuthorization();
 
         app.MapHub<MoveUpdatesHub>("/move-updates-hub")
@@ -144,6 +152,9 @@ public class Program
         });
 
         app.MapControllers();
+
+        app.MapGet("/api/hello", () => Results.Ok(new { message = "Hello from Ultimate Tic Tac Toe API" }))
+            .RequireCors(corsConfig.PolicyName);
 
         app.Run();
     }

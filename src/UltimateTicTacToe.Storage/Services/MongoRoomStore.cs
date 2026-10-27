@@ -95,7 +95,7 @@ public class MongoRoomStore : IRoomStore
             RoomId = Guid.NewGuid(),
             Type = RoomType.Regular,
             Status = RoomStatus.Waiting,
-            JoinCode = null,
+            // Omit JoinCode — explicit null still hits unique sparse index as a duplicate key.
             CreatedAtUtc = nowUtc,
             ExpiresAtUtc = expiresAtUtc,
             Players = new List<RoomPlayerDoc> { new() { UserId = userId, JoinedAtUtc = nowUtc } }
@@ -156,6 +156,7 @@ public class MongoRoomStore : IRoomStore
 
         public RoomStatus Status { get; set; }
 
+        [BsonIgnoreIfNull]
         public string? JoinCode { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }

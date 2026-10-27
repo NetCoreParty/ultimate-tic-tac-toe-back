@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace UltimateTicTacToe.Storage.HostedServices;
@@ -49,11 +50,26 @@ public class RoomsStoreInitializer : IHostedService
             cancellationToken: ct
         );
 
-        // Unique join code (private rooms)
+        // Unique join code for private rooms only (regular rooms omit JoinCode).
+        // Drop+recreate so Sparse→Partial upgrades apply on existing DBs.
+        try
+        {
+            await rooms.Indexes.DropOneAsync("uidx_rooms_join_code", ct);
+        }
+        catch (MongoCommandException)
+        {
+            // Index may not exist yet.
+        }
+
         await rooms.Indexes.CreateOneAsync(
             new CreateIndexModel<dynamic>(
                 Builders<dynamic>.IndexKeys.Ascending("JoinCode"),
-                new CreateIndexOptions { Name = "uidx_rooms_join_code", Unique = true, Sparse = true }
+                new CreateIndexOptions<dynamic>
+                {
+                    Name = "uidx_rooms_join_code",
+                    Unique = true,
+                    PartialFilterExpression = Builders<dynamic>.Filter.Type("JoinCode", BsonType.String)
+                }
             ),
             options: null,
             cancellationToken: ct
