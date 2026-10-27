@@ -2,7 +2,7 @@
 
 This roadmap outlines the planned development and milestones for the Ultimate Tic Tac Toe game project.
 
-Sibling frontend: `ultimate-tic-tac-toe-front` (live lobby/rooms wired; Game page still mock). See [../ultimate-tic-tac-toe-front/ROADMAP.md](../../ultimate-tic-tac-toe-front/ROADMAP.md) when working from a monorepo checkout, or the front repo `ROADMAP.md`.
+Sibling frontend: `ultimate-tic-tac-toe-front` (live lobby + live Game page). See [../ultimate-tic-tac-toe-front/ROADMAP.md](../../ultimate-tic-tac-toe-front/ROADMAP.md) when working from a monorepo checkout, or the front repo `ROADMAP.md`.
 
 ---
 
@@ -44,7 +44,7 @@ Sibling frontend: `ultimate-tic-tac-toe-front` (live lobby/rooms wired; Game pag
 
 ## In Progress
 
-_(none — next shared work is front Game page live path / move hub; see Frontend P1)_
+_(none — next shared work is richer move payload / E2E; see Frontend Planned)_
 
 ---
 
@@ -88,10 +88,10 @@ These are recommendations based on the current repo state (API/Core/Storage/test
     - Load path prefers snapshot + delta events
   - Touchpoints: `src/UltimateTicTacToe.Core/Features/GameSave/StateSnapshotStore.cs`, `src/UltimateTicTacToe.Core/Services/InMemoryGameRepository.cs`
 
-- [ ] Improve API contract for moves (return richer payload)
+- [x] Improve API contract for moves (return richer payload)
   - DoD:
-    - Return current game status + next expected player + last move id/version
-    - Use the same payload for HTTP and SignalR events for consistency
+    - Return current game status + next expected player + last move id/version (`MoveResult`)
+    - Use the same payload for HTTP and SignalR `MoveApplied` for consistency
 
 ### P2 (Observability / ops)
 
@@ -131,7 +131,8 @@ These are recommendations based on the current repo state (API/Core/Storage/test
 ### Game Mechanics
 
 - [ ] AI player mode (difficulty levels)
-- [ ] Timer-based turn control (timeouts, forfeits)
+- [x] Explicit leave forfeit (host/X via `POST /api/game/leave` → `FullGameWonEvent` for O)
+- [ ] Timer-based turn control (timeouts; auto-forfeit still open)
 - [ ] Game validation service (enforce move rules externally)
 
 ### API & Monitoring
@@ -171,15 +172,16 @@ Ship changes behind flags and run controlled experiments without redeploying for
 
 #### Frontend (Vue3 + Vite + TypeScript + Pinia + custom SCSS)
 
-Lives in sibling repo **`ultimate-tic-tac-toe-front`** (not under this repo’s `frontend/`). Lobby live wiring shipped; Game page still mock (P1).
+Lives in sibling repo **`ultimate-tic-tac-toe-front`** (not under this repo’s `frontend/`). Lobby + Game live wiring shipped.
 
 Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md) · Front roadmap: sibling `ROADMAP.md`
 
 **Shipped in front**
 - [x] Vue3 + Vite + TS + Vue Router + Pinia + Axios + custom SCSS themes
 - [x] Routes: Auth, Matchmaking, Game (+ HelloAws)
-- [x] Client-side Ultimate TTT rules + matchmaking hub UI
+- [x] Matchmaking hub UI + live Game board (history rebuild)
 - [x] Dev CORS includes Vite `http://localhost:5173`
+- [x] `MatchFound` includes `playerXId` / `playerOId`
 
 **P0 — wire front to this API (lobby)**
 - [x] API client live path for Auth + Matchmaking
@@ -193,22 +195,25 @@ Contract reference: [docs/USER_FLOWS.md](docs/USER_FLOWS.md) · Front roadmap: s
     - SignalR `/rooms-hub`: `JoinUser`, handle `QueueJoined`, `MatchFound`, `PrivateRoomCreated`, `QueueExpired`, `RoomExpired`
     - Restore on refresh using `GET /api/rooms/me`
     - Backpressure UX: clear 429 message + retry/backoff
-  - Note: `GET /api/rooms/private/{joinCode}` client exists; deeper join-link UX still open
+    - Join-link validation via `GET /api/rooms/private/{joinCode}`
 
 **P1 (Gameplay UI)**
-- [ ] Game page `/game/:gameId` live path
+- [x] Game page `/game/:gameId` live path
   - DoD:
-    - History load: `GET /api/game-management/{gameId}/moves-history?skip&take`
-    - Realtime: connect `/move-updates-hub`, join game group, apply updates
-    - Move submit: `POST /api/game/move` with correct error UX for 400/403/409
+    - History load: `GET /api/game-management/{gameId}/moves-history?skip&take` (includes `status` / `winnerId`)
+    - Realtime: connect `/move-updates-hub`, join game group, apply updates (refetch history on `MoveApplied`)
+    - Move submit: `POST /api/game/move` → `MoveResult` (same as SignalR `MoveApplied`); toast UX for soft validation + HTTP errors
+- [x] Leave: host (X) forfeit via `POST /api/game/leave` + `GameEnded`; guest soft-leave + `OpponentDisconnected` / rejoin `OpponentReconnected`
+- [x] In-game theme toggle locked; theme chosen on Auth/Matchmaking (`uttt-theme`)
+- [x] **P0 + P1 manually verified** (two-browser playtest + API leave smoke)
 
 **P2 (Shipping & tests)**
 - [ ] Dockerized frontend (nginx) + compose
   - DoD: runs in Docker and targets Rider-run API via `http://host.docker.internal:8080`
-- [ ] E2E smoke tests (Playwright)
-  - DoD: (1) regular matchmaking end-to-end, (2) private create/join end-to-end
+- [x] Playwright smoke (front `scripts/smoke-pages.mjs`): lobby + private join → game history load
+- [ ] Full two-browser Playwright E2E (moves + leave/forfeit)
 
-- [ ] Multiplayer session management
+- [ ] Multiplayer session management polish
 - [ ] Spectator view
 
 ### Analytics

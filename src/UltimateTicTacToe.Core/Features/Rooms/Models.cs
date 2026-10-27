@@ -45,6 +45,15 @@ public record MatchmakingTicketDto(
 
 public record CreatePrivateRoomResponse(Guid RoomId, string JoinCode, DateTime ExpiresAtUtc);
 public record QueueForGameResponse(Guid TicketId, DateTime ExpiresAtUtc);
-public record JoinPrivateRoomResponse(Guid GameId, Guid OpponentUserId);
-public record MatchFoundNotification(Guid TicketId, Guid GameId, Guid OpponentUserId);
+public record JoinPrivateRoomResponse(
+    Guid GameId,
+    Guid OpponentUserId,
+    Guid PlayerXId,
+    Guid PlayerOId);
+public record MatchFoundNotification(
+    Guid TicketId,
+    Guid GameId,
+    Guid OpponentUserId,
+    Guid PlayerXId,
+    Guid PlayerOId);
 

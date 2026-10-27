@@ -5,9 +5,9 @@ using UltimateTicTacToe.Core.Features.RealTimeNotification;
 
 namespace UltimateTicTacToe.Core.Features.GamePlay;
 
-public record MakeMoveCommand(PlayerMoveRequest makeMoveRequest) : IRequest<Result<bool>>;
+public record MakeMoveCommand(PlayerMoveRequest makeMoveRequest) : IRequest<Result<MoveResult>>;
 
-public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<bool>>
+public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<MoveResult>>
 {
     private readonly IGameRepository _gameRepo;
     private readonly IMoveUpdatesNotificationHub _realTimeNotifier;
@@ -18,12 +18,12 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<bo
         _realTimeNotifier = realTimeNotifier;
     }
 
-    public async Task<Result<bool>> Handle(MakeMoveCommand request, CancellationToken ct)
+    public async Task<Result<MoveResult>> Handle(MakeMoveCommand request, CancellationToken ct)
     {
         var result = await _gameRepo.TryMakeMoveAsync(request.makeMoveRequest, ct);
         var groupName = request.makeMoveRequest.GameId.ToString();
 
-        if (!result.IsSuccess)
+        if (!result.IsSuccess || result.Value is null)
         {
             await _realTimeNotifier.NotifyMoveRejectedAsync(groupName, result.Error, ct);
             return result;

@@ -133,6 +133,23 @@ public class GameRoot
             return;
     }
 
+    /// <summary>
+    /// Host (Player X) forfeit: opponent (O) wins. Guest soft-leave is not modeled here.
+    /// </summary>
+    public void Forfeit(Guid leavingPlayerId)
+    {
+        if (UncommittedChanges.Any(e => e is FullGameWonEvent || e is GameDrawnEvent))
+            throw new GameNotInProgressException();
+
+        if (Status != GameStatus.IN_PROGRESS)
+            throw new GameNotInProgressException();
+
+        if (leavingPlayerId != PlayerXId)
+            throw new InvalidMoveException("Only the host (Player X) can forfeit the game.");
+
+        Apply(new FullGameWonEvent(GameId, PlayerOId));
+    }
+
     public static GameRoot Rehydrate(IEnumerable<IDomainEvent> events, GameRoot? gameRoot)
     {
         if (gameRoot == null)

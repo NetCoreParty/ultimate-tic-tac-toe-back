@@ -84,9 +84,10 @@ public class MatchmakingService : IMatchmakingService
 
         await _tickets.TryMarkMatchedAsync(ticket.TicketId, matchedRoom.RoomId, start.Value!.GameId, ct);
 
-        // Best-effort: notify both users.
-        await _notifier.NotifyMatchFoundAsync(p1, new MatchFoundNotification(ticket.TicketId, start.Value!.GameId, p2), ct);
-        await _notifier.NotifyMatchFoundAsync(p2, new MatchFoundNotification(ticket.TicketId, start.Value!.GameId, p1), ct);
+        // Best-effort: notify both users (include X/O ids so clients can submit moves).
+        var game = start.Value!;
+        await _notifier.NotifyMatchFoundAsync(p1, new MatchFoundNotification(ticket.TicketId, game.GameId, p2, game.PlayerXId, game.PlayerOId), ct);
+        await _notifier.NotifyMatchFoundAsync(p2, new MatchFoundNotification(ticket.TicketId, game.GameId, p1, game.PlayerXId, game.PlayerOId), ct);
 
         await _rooms.DeleteRoomAsync(matchedRoom.RoomId, ct);
 
@@ -147,13 +148,15 @@ public class MatchmakingService : IMatchmakingService
             return Result<JoinPrivateRoomResponse>.Failure(start.Code, start.Error ?? "Failed to create game.");
         }
 
-        await _notifier.NotifyMatchFoundAsync(p1, new MatchFoundNotification(Guid.Empty, start.Value!.GameId, p2), ct);
-        await _notifier.NotifyMatchFoundAsync(p2, new MatchFoundNotification(Guid.Empty, start.Value!.GameId, p1), ct);
+        var game = start.Value!;
+        await _notifier.NotifyMatchFoundAsync(p1, new MatchFoundNotification(Guid.Empty, game.GameId, p2, game.PlayerXId, game.PlayerOId), ct);
+        await _notifier.NotifyMatchFoundAsync(p2, new MatchFoundNotification(Guid.Empty, game.GameId, p1, game.PlayerXId, game.PlayerOId), ct);
 
         await _rooms.DeleteRoomAsync(room.RoomId, ct);
 
         var opponent = userId == p1 ? p2 : p1;
-        return Result<JoinPrivateRoomResponse>.Success(new JoinPrivateRoomResponse(start.Value!.GameId, opponent));
+        return Result<JoinPrivateRoomResponse>.Success(
+            new JoinPrivateRoomResponse(game.GameId, opponent, game.PlayerXId, game.PlayerOId));
     }
 
     private bool IsInBackpressure()

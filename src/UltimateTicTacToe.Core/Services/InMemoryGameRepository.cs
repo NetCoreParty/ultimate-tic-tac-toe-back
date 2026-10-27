@@ -18,7 +18,12 @@ public interface IGameRepository
     /// </summary>
     Task<Result<StartGameResponse>> TryStartGameForPlayersAsync(Guid playerXId, Guid playerOId, Guid? gameId = null, CancellationToken ct = default);
 
-    Task<Result<bool>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default);
+    Task<Result<MoveResult>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default);
+
+    /// <summary>
+    /// Host (Player X) forfeits; guest (Player O) soft-leaves without ending the game.
+    /// </summary>
+    Task<Result<LeaveGameResponse>> TryLeaveGameAsync(Guid gameId, Guid userId, CancellationToken ct = default);
 
     Task<Result<bool>> TryClearFinishedGamesAsync(CancellationToken ct = default);
     Task<Result<FilteredMovesHistoryResponse>> GetMovesFilteredByAsync(Guid gameId, int skip, int take, CancellationToken ct);
@@ -134,11 +139,11 @@ public class InMemoryGameRepository : IGameRepository
         }
     }
 
-    public async Task<Result<bool>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default)
+    public async Task<Result<MoveResult>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default)
     {
         var acquired = await _semaphore.WaitAsync(_maxSemaphoreTimeoutMs, ct);
         if (!acquired)
-            return Result<bool>.Failure(503, "Server is busy. Please retry.");
+            return Result<MoveResult>.Failure(503, "Server is busy. Please retry.");
 
         try
         {
@@ -149,7 +154,7 @@ public class InMemoryGameRepository : IGameRepository
                 if (gameRoot == null)
                 {
                     _logger.LogError($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Game with ID {move.GameId} not found.");
-                    return Result<bool>.Failure(404, $"Game with ID {move.GameId} not found.");
+                    return Result<MoveResult>.Failure(404, $"Game with ID {move.GameId} not found.");
                 }
 
                 _games[move.GameId] = gameRoot;
@@ -180,7 +185,7 @@ public class InMemoryGameRepository : IGameRepository
                     var restored = await TryRehydrateGameAsync(move.GameId, ct);
                     if (restored != null)
                         _games[move.GameId] = restored;
-                    return Result<bool>.Failure(500, "Failed to persist move. Please retry.");
+                    return Result<MoveResult>.Failure(500, "Failed to persist move. Please retry.");
                 }
 
                 if (newEvents.Count >= _gameplaySettings.EventsUntilSnapshot)
@@ -194,41 +199,135 @@ public class InMemoryGameRepository : IGameRepository
                 {
                     _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): " +
                         $"GameRoot: {gameRoot.GameId} is ready for Snapshot!");
-
-                    //_games.TryRemove(gameRoot.GameId, out _);
-                    //await _snapshotService.TryCreateSnapshotAsync(gameId, gameRoot.Board, newEvents, gameRoot.Version);
                 }
 
+                var moveResult = BuildMoveResult(gameRoot, move);
                 _logger.LogInformation($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): A move: {move.ToString()} was made alright!");
-                return Result<bool>.Success(true);
+                return Result<MoveResult>.Success(moveResult);
             }
 
-            return Result<bool>.Failure(404, $"Game with ID {move.GameId} not found.");
+            return Result<MoveResult>.Failure(404, $"Game with ID {move.GameId} not found.");
         }
         catch (NotYourTurnException ex)
         {
             _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Not your turn: {ex.Message}");
-            return Result<bool>.Failure(403, ex.Message);
+            return Result<MoveResult>.Failure(403, ex.Message);
         }
         catch (InvalidMoveException ex)
         {
             _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Invalid move: {ex.Message}");
-            return Result<bool>.Failure(400, ex.Message);
+            return Result<MoveResult>.Failure(400, ex.Message);
         }
         catch (MiniBoardNotPlayableException ex)
         {
             _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Mini board not playable: {ex.Message}");
-            return Result<bool>.Failure(409, ex.Message);
+            return Result<MoveResult>.Failure(409, ex.Message);
         }
         catch (GameNotInProgressException ex)
         {
             _logger.LogWarning($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Game not in progress: {ex.Message}");
-            return Result<bool>.Failure(409, ex.Message);
+            return Result<MoveResult>.Failure(409, ex.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError($"{nameof(InMemoryGameRepository)}:{nameof(TryMakeMoveAsync)}(): Exception was caught: {ex.GetType().Name}: {ex.Message}");
-            return Result<bool>.Failure(500, $"Error while making move: {ex.Message}");
+            return Result<MoveResult>.Failure(500, $"Error while making move: {ex.Message}");
+        }
+        finally
+        {
+            if (acquired)
+                _semaphore.Release();
+        }
+    }
+
+    private static MoveResult BuildMoveResult(GameRoot gameRoot, PlayerMoveRequest move)
+    {
+        var cellMoveCount = gameRoot.Board.GetTotalMoves();
+        Guid? nextPlayerId = null;
+        if (gameRoot.Status == GameStatus.IN_PROGRESS)
+        {
+            nextPlayerId = cellMoveCount % 2 == 0 ? gameRoot.PlayerXId : gameRoot.PlayerOId;
+        }
+
+        var lastMove = new PlayerHistoricalMove(
+            PlayerId: move.PlayerId,
+            MoveId: cellMoveCount,
+            MiniBoardRowId: move.MiniBoardRowId,
+            MiniBoardColId: move.MiniBoardColId,
+            CellRowId: move.CellRowId,
+            CellColId: move.CellColId);
+
+        return new MoveResult(
+            gameRoot.GameId,
+            gameRoot.Status,
+            gameRoot.WinnerId,
+            gameRoot.Version,
+            nextPlayerId,
+            lastMove);
+    }
+
+    public async Task<Result<LeaveGameResponse>> TryLeaveGameAsync(Guid gameId, Guid userId, CancellationToken ct = default)
+    {
+        var acquired = await _semaphore.WaitAsync(_maxSemaphoreTimeoutMs, ct);
+        if (!acquired)
+            return Result<LeaveGameResponse>.Failure(503, "Server is busy. Please retry.");
+
+        try
+        {
+            if (!_games.TryGetValue(gameId, out var gameRoot))
+            {
+                gameRoot = await TryRehydrateGameAsync(gameId, ct);
+                if (gameRoot == null)
+                    return Result<LeaveGameResponse>.Failure(404, $"Game with ID {gameId} not found.");
+
+                _games[gameId] = gameRoot;
+            }
+
+            if (userId != gameRoot.PlayerXId && userId != gameRoot.PlayerOId)
+                return Result<LeaveGameResponse>.Failure(403, "Only players in this game can leave.");
+
+            if (gameRoot.Status != GameStatus.IN_PROGRESS)
+                return Result<LeaveGameResponse>.Failure(409, "Game is not in progress.");
+
+            // Guest soft-leave: no event-store change.
+            if (userId == gameRoot.PlayerOId)
+            {
+                return Result<LeaveGameResponse>.Success(new LeaveGameResponse("softLeave", null));
+            }
+
+            // Host forfeit.
+            gameRoot.Forfeit(userId);
+            var newEvents = gameRoot.UncommittedChanges.ToList();
+
+            try
+            {
+                await _eventStore.AppendEventsAsync(gameRoot.GameId, newEvents, ct);
+                await _snapshotStore.TryCreateSnapshotAsync(gameRoot);
+                GameRoot.ClearUncomittedEvents(gameRoot);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(InMemoryGameRepository)}:{nameof(TryLeaveGameAsync)}(): Failed to persist forfeit: {ex.GetType().Name}: {ex.Message}");
+                var restored = await TryRehydrateGameAsync(gameId, ct);
+                if (restored != null)
+                    _games[gameId] = restored;
+                return Result<LeaveGameResponse>.Failure(500, "Failed to persist forfeit. Please retry.");
+            }
+
+            return Result<LeaveGameResponse>.Success(new LeaveGameResponse("forfeit", gameRoot.WinnerId));
+        }
+        catch (GameNotInProgressException ex)
+        {
+            return Result<LeaveGameResponse>.Failure(409, ex.Message);
+        }
+        catch (InvalidMoveException ex)
+        {
+            return Result<LeaveGameResponse>.Failure(403, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"{nameof(InMemoryGameRepository)}:{nameof(TryLeaveGameAsync)}(): {ex.GetType().Name}: {ex.Message}");
+            return Result<LeaveGameResponse>.Failure(500, $"Error while leaving game: {ex.Message}");
         }
         finally
         {
@@ -290,7 +389,26 @@ public class InMemoryGameRepository : IGameRepository
 
         var page = allMoves.Skip(skip).Take(take).ToList();
 
-        return Result<FilteredMovesHistoryResponse>.Success(new FilteredMovesHistoryResponse(gameId, page));
+        var won = allEvents.OfType<Domain.Events.FullGameWonEvent>().OrderBy(e => e.Version).LastOrDefault();
+        var drawn = allEvents.OfType<Domain.Events.GameDrawnEvent>().OrderBy(e => e.Version).LastOrDefault();
+        GameStatus status;
+        Guid? winnerId = null;
+        if (won != null)
+        {
+            status = GameStatus.WON;
+            winnerId = won.WinnerId;
+        }
+        else if (drawn != null)
+        {
+            status = GameStatus.DRAW;
+        }
+        else
+        {
+            status = GameStatus.IN_PROGRESS;
+        }
+
+        return Result<FilteredMovesHistoryResponse>.Success(
+            new FilteredMovesHistoryResponse(gameId, page, status, winnerId));
     }
 
     private async Task<GameRoot?> TryRehydrateGameAsync(Guid gameId, CancellationToken ct)

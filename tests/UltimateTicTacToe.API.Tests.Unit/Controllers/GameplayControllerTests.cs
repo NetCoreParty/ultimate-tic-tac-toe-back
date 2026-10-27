@@ -79,7 +79,20 @@ public class GamePlayControllerTests
             CellColId: 1
             );
 
-        var expectedResult = Result<bool>.Success(true);
+        var moveResult = new MoveResult(
+            actualMoveRequest.GameId,
+            GameStatus.IN_PROGRESS,
+            null,
+            Version: 2,
+            NextPlayerId: Guid.Parse("00000000-0000-0000-0000-000000000003"),
+            LastMove: new PlayerHistoricalMove(
+                actualMoveRequest.PlayerId,
+                MoveId: 1,
+                actualMoveRequest.MiniBoardRowId,
+                actualMoveRequest.MiniBoardColId,
+                actualMoveRequest.CellRowId,
+                actualMoveRequest.CellColId));
+        var expectedResult = Result<MoveResult>.Success(moveResult);
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<MakeMoveCommand>(), It.IsAny<CancellationToken>()))
@@ -90,7 +103,7 @@ public class GamePlayControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var actualResult = Assert.IsType<Result<bool>>(okResult.Value);
+        var actualResult = Assert.IsType<Result<MoveResult>>(okResult.Value);
         actualResult.ShouldBeEquivalentTo(expectedResult);
     }
 
@@ -109,7 +122,7 @@ public class GamePlayControllerTests
             CellColId: 1
             );
 
-        var expectedResult = Result<bool>.Failure(404, $"Game with ID {gameId} not found.");
+        var expectedResult = Result<MoveResult>.Failure(404, $"Game with ID {gameId} not found.");
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<MakeMoveCommand>(), It.IsAny<CancellationToken>()))
@@ -120,7 +133,7 @@ public class GamePlayControllerTests
 
         // Assert
         var failedResult = Assert.IsType<NotFoundObjectResult>(result);
-        var actualResult = Assert.IsType<Result<bool>>(failedResult.Value);
+        var actualResult = Assert.IsType<Result<MoveResult>>(failedResult.Value);
         actualResult.ShouldBeEquivalentTo(expectedResult);
     }
 }

@@ -46,7 +46,10 @@ internal sealed class FakeGameRepository : IGameRepository
     public Task<Result<StartGameResponse>> TryStartGameForPlayersAsync(Guid playerXId, Guid playerOId, Guid? gameId = null, CancellationToken ct = default)
         => throw new NotSupportedException("Not needed for this test.");
 
-    public Task<Result<bool>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default)
+    public Task<Result<MoveResult>> TryMakeMoveAsync(PlayerMoveRequest move, CancellationToken ct = default)
+        => throw new NotSupportedException("Not needed for this test.");
+
+    public Task<Result<LeaveGameResponse>> TryLeaveGameAsync(Guid gameId, Guid userId, CancellationToken ct = default)
         => throw new NotSupportedException("Not needed for this test.");
 
     public Task<Result<bool>> TryClearFinishedGamesAsync(CancellationToken ct = default)
